@@ -225,12 +225,13 @@ class _RegisterState extends State<Register> {
   }
 
   _onSubmit() async{
-    try {
-      var form = _formKey.currentState;
-      if (form.validate()) {
-        form.save();
-        AuthNotifier authNotifier = Provider.of<AuthNotifier>(
-            context, listen: false);
+    var form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      AuthNotifier authNotifier = Provider.of<AuthNotifier>(
+          context, listen: false);
+
+      if (! await checkEmailAddress(_user.email) && ! await checkUserExistById(_user.userId)) {
         register(_user, authNotifier);
         _resetForm();
 
@@ -240,15 +241,13 @@ class _RegisterState extends State<Register> {
           desc: "User has been inserted",
           image: Image.asset("images/success.png"),
         ).show();
-      }
-    }catch(e){
-      print(e);
-      Alert(
-        context: context,
-        title: "Erorr!",
-        desc: "USER ID is already duplicated!..",
-        image: Image.asset("images/fail.png"),
-      ).show();
+      }else
+        Alert(
+          context: context,
+          title: "Erorr!",
+          desc: "The user is exist!..",
+          image: Image.asset("images/fail.png"),
+        ).show();
     }
   }
 }

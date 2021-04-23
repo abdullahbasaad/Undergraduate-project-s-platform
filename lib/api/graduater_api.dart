@@ -327,31 +327,30 @@ register (User user, AuthNotifier authNotifier) async {
       .createUserWithEmailAndPassword(email: user.email, password: user.password)
       .catchError((error) => print(error.code));
 
-  Firestore.instance.collection("user").document().setData({
-    'admin': false,
-    'password': user.password,
-    'userId': user.userId,
-    'userName': user.userName,
-    'email': user.email});
+      if (authResult.user != null) {
+        UserUpdateInfo updateInfo = UserUpdateInfo();
+        updateInfo.displayName = user.userName;
 
-  if (authResult.user != null){
-    UserUpdateInfo updateInfo = UserUpdateInfo();
-    updateInfo.displayName = user.userName;
+        FirebaseUser firebaseUser = authResult.user;
 
-    FirebaseUser firebaseUser = authResult.user;
+        if (firebaseUser != null) {
+          firebaseUser.updateProfile(updateInfo);
 
-    if (firebaseUser != null){
-      firebaseUser.updateProfile(updateInfo);
+          await firebaseUser.reload();
 
-      await firebaseUser.reload();
+          print("Sign up $firebaseUser");
 
-      print("Sign up $firebaseUser");
+          FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
+          authNotifier.setUser(currentUser);
 
-      FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
-      authNotifier.setUser(currentUser);
-
-    }
-  }
+          Firestore.instance.collection("user").document().setData({
+            'admin': false,
+            'password': user.password,
+            'userId': user.userId,
+            'userName': user.userName,
+            'email': user.email});
+        }
+      }
 }
 
 // Sign out function
@@ -459,6 +458,16 @@ Future<bool> updateUserPrivilege(String email) async{
 Future<bool> checkEmailAddress(String email) async{
   QuerySnapshot  qs = await Firestore.instance.collection('user')
       .where('email', isEqualTo: email)
+      .getDocuments();
+
+  if (qs.documents.length > 0) return true;
+  return false;
+}
+
+// Check if the userId exists or not?
+Future<bool> checkUserExistById(int usrId) async{
+  QuerySnapshot  qs = await Firestore.instance.collection('user')
+      .where('userId', isEqualTo: usrId)
       .getDocuments();
 
   if (qs.documents.length > 0) return true;

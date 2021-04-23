@@ -145,18 +145,18 @@ class _UploadStudentInfoState extends State<UploadStudentInfo> {
   _uploadStudentsInfo() async{
     for (int row=1; row<_data.length; row++){
       try{
-        // User user = User();
-        // user.userId = _data[row][0];
-        // user.userName = _data[row][1];
-        // user.email = _data[row][2];
-        // user.password = user.userName.substring(0,2)+'123';
+        User user = User();
+        user.userId = _data[row][0];
+        user.userName = _data[row][1];
+        user.email = _data[row][2];
+        user.password = user.userName.substring(0,2)+'123';
 
-        // Firestore.instance.collection("user").document().setData(
-        // {'admin': false,
-        //   'password': user.password,
-        //   'userId': user.userId,
-        //   'userName': user.userName,
-        //   'email': user.email});
+        Firestore.instance.collection("user").document().setData(
+        {'admin': false,
+          'password': user.password,
+          'userId': user.userId,
+          'userName': user.userName,
+          'email': user.email.toLowerCase()});
 
         Students student = Students();
         student.studentId = _data[row][0];

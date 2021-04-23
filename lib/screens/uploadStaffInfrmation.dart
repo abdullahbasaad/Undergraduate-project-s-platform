@@ -146,19 +146,19 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
     for (int row=1; row<_data.length; row++){
       try{
 
-        // User user = User();
-        // user.userId = _data[row][0];
-        // user.userName = _data[row][1];
-        // user.email = _data[row][2];
-        // user.password = user.userName.substring(0,2)+'@Y2021';
-        // user.admin = false;
+        User user = User();
+        user.userId = _data[row][0];
+        user.userName = _data[row][1];
+        user.email = _data[row][2];
+        user.password = user.userName.substring(0,2)+'@Y2021';
+        user.admin = false;
 
-        // Firestore.instance.collection("user").document().setData(
-        // {'admin': false,
-        // 'password': user.password,
-        // 'userId': user.userId,
-        // 'userName': user.userName,
-        // 'email': user.email});
+        Firestore.instance.collection("user").document().setData(
+        {'admin': false,
+        'password': user.password,
+        'userId': user.userId,
+        'userName': user.userName,
+        'email': user.email.toLowerCase()});
 
         Staff staff = Staff();
         staff.staffId = _data[row][0];

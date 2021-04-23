@@ -390,7 +390,6 @@ class _ShowProjectsState extends State<ShowProjects> {
                                 fontWeight: FontWeight.bold,
                               ),),
                           ),
-
                         ],
                       )
                     ),
@@ -405,6 +404,24 @@ class _ShowProjectsState extends State<ShowProjects> {
                               style: TextStyle(
                                 color: Colors.red,
                                 fontWeight: FontWeight.bold,
+                              ),);
+                          }else
+                            return Container();
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 10.0,),
+                    Container(
+                      padding: EdgeInsets.only(bottom: 10.0),
+                      child:  FutureBuilder<String>(
+                        future: getStudentAssignedName(_projects[index].documentId),
+                        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                          if (snapshot.hasData) {
+                            return Text('Assigned to : '+snapshot.data,
+                              style: TextStyle(
+                                color: Colors.green[900],
+                                fontSize: 13.0,
+                                //fontWeight: FontWeight.bold,
                               ),);
                           }else
                             return Container();
