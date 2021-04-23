@@ -4,12 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:graduater/api/graduater_api.dart';
 import 'package:graduater/components/screenTitleWidget.dart';
 import 'package:graduater/models/projects.dart';
-import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:graduater/screens/login.dart';
 import 'package:flutter/services.dart';
-import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:graduater/models/globals.dart' as globals;
-import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'addNewProject.dart';
@@ -296,7 +293,10 @@ class _AdminMenuState extends State<AdminMenu> {
           ],
         ),
       ),
-      body: DraggableScrollbar.semicircle(
+      body: Scrollbar(
+        showTrackOnHover: true,
+        thickness: 9.0,
+        isAlwaysShown: true,
         controller: _semicircleController,
         child: ListView.builder(
         controller: _semicircleController,
