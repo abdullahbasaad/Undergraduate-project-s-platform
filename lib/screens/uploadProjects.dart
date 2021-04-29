@@ -10,7 +10,7 @@ import 'package:csv/csv.dart';
 import 'package:graduater/models/projects.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
+import 'package:uuid/uuid.dart';
 
 class UploadProjects extends StatefulWidget {
   @override
@@ -138,13 +138,27 @@ class _UploadProjectsState extends State<UploadProjects> {
     size: 50.0,
   );
   _uploadProjects() async{
+    String skl;
+    String lng;
     for (int row=1; row<_data.length; row++){
+      skl='';
+      lng='';
       try {
         if (_data[row][0] == null) _data[row][0] = 'No Title';
         if (_data[row][1] == null) _data[row][1] = 'No Description';
 
         Projects project = Projects(null,_data[row][0],_data[row][1],_data[row][2],_data[row][2],1);
-        addProject(project, null);
+        project.documentId = Uuid().v4();
+        addProject(project, project.documentId);
+
+        skl = _data[row][3];
+        if (skl.length > 0)
+          await insertSkills(skl, project.documentId);
+
+        lng = _data[row][4];
+        if (lng.length > 0)
+          await insertLangs(lng, project.documentId);
+
         _projects.add(project);
         _inserted = true;
       }catch(e){
@@ -160,5 +174,51 @@ class _UploadProjectsState extends State<UploadProjects> {
       }
     }
     Navigator.pop(context);
+  }
+
+  Future<void> insertSkills(String skl, String prj) async{
+    String sen='';
+    for(int i=0; i<skl.length; i++) {
+      if (skl[i] != ','){
+        sen = sen + skl[i];
+      }else{
+        sen = sen.trim();
+
+        if (! await checkSkillExist(sen))
+          await addNewSkillNId(sen);
+
+        await addProjectSkill(prj, sen);
+        sen = '';
+      }
+    }
+    sen = sen.trim();
+    if (sen.length > 0) {
+      if (! await checkSkillExist(sen))
+        await addNewSkillNId(sen);
+      await  addProjectSkill(prj, sen);
+    }
+  }
+
+  Future<void> insertLangs(String lng, String prj) async{
+    String sen='';
+    for(int i=0; i<lng.length; i++) {
+      if (lng[i] != ','){
+        sen = sen + lng[i];
+      }else{
+        sen = sen.trim();
+
+        if (! await checkLangExist(sen))
+          await addNewLangNId(sen);
+
+        await addProjectLang(prj, sen);
+        sen = '';
+      }
+    }
+    sen = sen.trim();
+    if (sen.length > 0) {
+      if (! await checkLangExist(sen))
+        await addNewLangNId(sen);
+      await  addProjectLang(prj, sen);
+    }
   }
 }

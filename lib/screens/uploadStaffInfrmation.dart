@@ -7,13 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:graduater/components/screenTitleWidget.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
-import 'package:graduater/models/projects.dart';
 import 'package:graduater/models/staff.dart';
 import 'package:graduater/models/user.dart';
-import 'package:graduater/models/user.dart';
+import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-
+import 'package:graduater/notifier/auth_notifier.dart';
+import 'package:graduater/api/graduater_api.dart';
 
 class UploadStaffInformation extends StatefulWidget {
   @override
@@ -143,6 +142,8 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
   }
 
   _uploadStaffInfo() async{
+    String skl;
+    String lng;
     for (int row=1; row<_data.length; row++){
       try{
 
@@ -150,15 +151,13 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
         user.userId = _data[row][0];
         user.userName = _data[row][1];
         user.email = _data[row][2];
-        user.password = user.userName.substring(0,2)+'@Y2021';
+        user.password = user.userName.substring(0,2)+'123456';
         user.admin = false;
 
-        Firestore.instance.collection("user").document().setData(
-        {'admin': false,
-        'password': user.password,
-        'userId': user.userId,
-        'userName': user.userName,
-        'email': user.email.toLowerCase()});
+
+        AuthNotifier authNotifier = Provider.of<AuthNotifier>(
+            context, listen: false);
+        await register(user, authNotifier);
 
         Staff staff = Staff();
         staff.staffId = _data[row][0];
@@ -188,6 +187,7 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
     }
     Navigator.pop(context);
   }
+
 }
 
 

@@ -13,6 +13,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 
 // Login function, check database (Firebase) authentication, ckeck a user profile, check application authentication
 login(User user, AuthNotifier authNotifier,BuildContext context) async {
+  print('user details'+user.password);
   AuthResult authResult = await FirebaseAuth.instance
       .signInWithEmailAndPassword(
       email: user.email, password: user.password)
@@ -26,8 +27,8 @@ login(User user, AuthNotifier authNotifier,BuildContext context) async {
       authNotifier.setUser(firebaseUser);
       globals.email = firebaseUser.email;
 
-      QuerySnapshot querySnapshot = await getDocuemntId(user.email);
-
+      QuerySnapshot querySnapshot = await getDocuemntId(user.email.toLowerCase());
+print(querySnapshot.documents.length);
       if (querySnapshot.documents.length > 0){
         if (querySnapshot.documents[0].data['admin'])
           Navigator.pushNamed(context, '/adminMenu');
@@ -375,7 +376,40 @@ addNewSkill(int docId, String skillDesc) async{
     'docId':(docId+1).toString(),
     'skillDesc': skillDesc,
     'createdDt': DateTime.now()});
+}
 
+Future<bool> checkSkillExist(String skl) async  {
+  QuerySnapshot qShot = await Firestore.instance.collection('skill').where('skillDesc', isEqualTo: skl )
+      .getDocuments();
+
+  if (qShot.documents.length > 0)
+    return true;
+  else
+    return false;
+}
+//////////////////////////////////////////////////////////////////////////////////////
+Future<bool> checkLangExist(String lng) async  {
+  QuerySnapshot qShot = await Firestore.instance.collection('projectLanguages').where('langDesc', isEqualTo: lng )
+      .getDocuments();
+
+  if (qShot.documents.length > 0)
+    return true;
+  else
+    return false;
+}
+
+// Add new skill into the system
+addNewSkillNId(String skillDesc) async{
+  await Firestore.instance.collection("skill").document().setData({
+    'skillDesc': skillDesc,
+    'createdDt': DateTime.now()});
+}
+
+// Add new languages
+addNewLangNId(String langDesc) async{
+  await Firestore.instance.collection("programmingLanguages").document().setData({
+    'langDesc': langDesc,
+    'createdDt': DateTime.now()});
 }
 
 // Add new programming language into the system

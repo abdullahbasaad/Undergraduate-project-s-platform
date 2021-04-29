@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +13,6 @@ import 'package:graduater/models/user.dart';
 import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class UploadStudentInfo extends StatefulWidget {
   @override
@@ -149,14 +147,12 @@ class _UploadStudentInfoState extends State<UploadStudentInfo> {
         user.userId = _data[row][0];
         user.userName = _data[row][1];
         user.email = _data[row][2];
-        user.password = user.userName.substring(0,2)+'123';
+        user.email = user.email.toLowerCase();
+        user.password = user.userName.substring(0,2).toLowerCase()+'123456';
 
-        Firestore.instance.collection("user").document().setData(
-        {'admin': false,
-          'password': user.password,
-          'userId': user.userId,
-          'userName': user.userName,
-          'email': user.email.toLowerCase()});
+        AuthNotifier authNotifier = Provider.of<AuthNotifier>(
+            context, listen: false);
+        await register(user, authNotifier);
 
         Students student = Students();
         student.studentId = _data[row][0];

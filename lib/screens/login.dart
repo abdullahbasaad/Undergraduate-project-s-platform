@@ -33,7 +33,7 @@ class _LoginState extends State<Login> {
     initializeCurrentUser(authNotifier);
     super.initState();
     _ctrlUserEmail.text = 'abd_bas@hotmail.com';
-    _ctrlUserPassword.text = 'abd123';
+    _ctrlUserPassword.text = 'ab123456';
   }
 
   void _submitForm() async{
