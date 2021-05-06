@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:graduater/models/programming_languages.dart';
 import 'package:graduater/models/projects.dart';
 import 'package:graduater/models/skills.dart';
+import 'package:graduater/models/staff.dart';
 import 'package:graduater/models/user.dart';
 import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:graduater/models/globals.dart' as globals;
@@ -131,6 +132,16 @@ Future<QuerySnapshot> getProjectDocuments() {
   return Firestore.instance.collection('project').getDocuments();
 }
 
+// Return all documents for a project's collection
+Future<QuerySnapshot> getProjectSupervisorDocuments(String sprName) {
+  return Firestore.instance.collection('project').where('supervisorName', isEqualTo: sprName).getDocuments();
+}
+
+// Return all available projects collection
+Future<QuerySnapshot> getProjectAvailableDocuments(bool avlbl) {
+  return Firestore.instance.collection('project').where('available', isEqualTo: avlbl).getDocuments();
+}
+
 // Return all documents for a skill's collection
 Future<QuerySnapshot> getSkillDocuments() {
   return Firestore.instance.collection('skill').getDocuments();
@@ -222,7 +233,10 @@ Future<Projects> returnProjectSkillQueryDocuments(String docId) async {
           projDoc.data['projectDesc'],
           projDoc.data['proposedBy'],
           projDoc.data['supervisor'],
-          projDoc.data['noOfStudents']);
+          projDoc.data['noOfStudents'],
+          projDoc.data['supervisorName'],
+          projDoc.data['available']
+      );
     else
       return null;
 }
@@ -242,7 +256,9 @@ Future<Projects> returnProjectLangQueryDocuments(String docId) async {
         projDoc.data['projectDesc'],
         projDoc.data['proposedBy'],
         projDoc.data['supervisor'],
-        projDoc.data['noOfStudents']);}
+        projDoc.data['noOfStudents'],
+        projDoc.data['supervisorName'],
+        projDoc.data['available']);}
   else
     return null;
 }
@@ -268,6 +284,11 @@ Future<List<Skills>> getSkillList() async {
           doc.documentID,
           doc.data["skillDesc"])
   ).toList();
+}
+
+// Return all documents for a staff collection
+Future<QuerySnapshot> getStaffDocuments() async {
+  return await Firestore.instance.collection('staff').getDocuments();
 }
 
 // Return programming languages as a list
@@ -328,7 +349,7 @@ register (User user, AuthNotifier authNotifier) async {
       .createUserWithEmailAndPassword(email: user.email, password: user.password)
       .catchError((error) => print(error.code));
 
-      if (authResult.user != null) {
+      if (authResult.user.uid != null) {
         UserUpdateInfo updateInfo = UserUpdateInfo();
         updateInfo.displayName = user.userName;
 
@@ -437,6 +458,8 @@ addProject(Projects prj, String docId) async{
       'projectTitle': prj.projectTitle,
       'proposedBy': prj.proposedBy,
       'supervisor': prj.supervisor,
+      'supervisorName' : prj.supervisorName,
+      'available' : prj.available,
       'createdDt': DateTime.now()});
   else
     Firestore.instance.collection("project").document()
@@ -516,9 +539,11 @@ Future<bool> unsignStudentProject(int stdtId) async{
 
   if (qs.documents.length > 0) {
     String docId = qs.documents[0].documentID.toString();
+    String projId = qs.documents[0].data['projectId'];
     await Firestore.instance.collection('student')
         .document(docId)
         .updateData({'projectId': null});
+    await updateProjectAvailable(projId, true);
     return true;
   }
   else
@@ -569,7 +594,14 @@ updateLang(String docId, String langDesc) async{
       .collection('programmingLanguages')
       .document(docId)
       .updateData({'langDesc': langDesc});
+}
 
+// Update programming language info for a specific document
+updateProjectAvailable(String docId, bool isAvailable) async{
+  await Firestore.instance
+      .collection('project')
+      .document(docId)
+      .updateData({'available': isAvailable});
 }
 
 // Clean the database

@@ -58,10 +58,10 @@ class _AdminMenuState extends State<AdminMenu> {
               height: 180.0,
               child:DrawerHeader(
                 decoration: BoxDecoration(
-                    color: Colors.blue[900],
+                  color: Colors.blue[900],
                     image: DecorationImage(
                       image: AssetImage("images/bcu.png"),
-                    )
+                  ),
                 ),
                 child: Padding(
                   padding: EdgeInsets.only(top: 95.0),
@@ -341,9 +341,12 @@ class _AdminMenuState extends State<AdminMenu> {
                               textColor: Colors.white,
                               child: Text('OK'),
                               onPressed: () async {
-                                if (_textFieldAssignedController.text.length > 0)
-                                  await assignProject (_projects[index].documentId, int.parse(_textFieldAssignedController.text));
-                                else
+                                if (_textFieldAssignedController.text.length > 0) {
+                                  await assignProject(
+                                      _projects[index].documentId, int.parse(
+                                      _textFieldAssignedController.text));
+                                  await updateProjectAvailable(_projects[index].documentId, false);
+                                }else
                                   Alert(
                                     context: context,
                                     title: "Failed!",
@@ -359,8 +362,6 @@ class _AdminMenuState extends State<AdminMenu> {
                 },
               ),
               title: Column(
-                // mainAxisSize: MainAxisSize.max,
-                // mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     padding: EdgeInsets.only(top: 10.0),
@@ -373,19 +374,12 @@ class _AdminMenuState extends State<AdminMenu> {
                   SizedBox(height: 20.0,),
                   Container(
                     padding: EdgeInsets.only(bottom: 10.0),
-                    child:  FutureBuilder<String>(
-                      future: getUserName(_projects[index].supervisor),
-                      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                        if (snapshot.hasData) {
-                          return Text(snapshot.data,
+                    child:  Text(_projects[index].supervisorName,
                             style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
-                            ),);
-                        }else
-                          return Container();
-                      },
-                    ),
+                            ),
+                     ),
                   ),
                   SizedBox(height: 10.0,),
                   Container(
@@ -439,7 +433,9 @@ class _AdminMenuState extends State<AdminMenu> {
             doc.data['projectDesc'],
             doc.data['proposedBy'],
             doc.data['supervisor'],
-            doc.data['noOfStudents'])
+            doc.data['noOfStudents'],
+            doc.data['supervisorName'],
+            doc.data['available'])
     ).toList();
   }
 
@@ -447,6 +443,7 @@ class _AdminMenuState extends State<AdminMenu> {
     if (await checkStudentExist(studId)){
       if (await isStudentHasProject(studId)){
         await assignProjectToStudent(studId, projId);
+        await updateProjectAvailable(projId, false);
         Alert(
           context: context,
           title: "Success!",

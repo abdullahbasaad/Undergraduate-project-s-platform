@@ -28,7 +28,7 @@ class AddNewProject extends StatefulWidget {
 class _AddNewProjectState extends State<AddNewProject> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  Projects _project = Projects(null,null,null,null,null,null);
+  Projects _project = Projects(null,null,null,null,null,null,null,null);
   List<Projects> _projects = [];
   List<ProjectSkills> _projectSkills = [];
   List<ProjectLanguages> _projectLangs = [];
@@ -256,6 +256,7 @@ class _AddNewProjectState extends State<AddNewProject> {
                               _ctrlSuperviseddName.text = '';
                             else
                               _ctrlSuperviseddName.text = _uName;
+                          _project.supervisorName = _uName;
                           setState(() {});
                         },
                         validator: (val) {
@@ -409,6 +410,8 @@ class _AddNewProjectState extends State<AddNewProject> {
                           else
                           if (_project.documentId == null) {
                             _project.documentId = Uuid().v4();
+                            _project.supervisorName = await (getUserName(_project.supervisor));
+                            _project.available = true;
                             await addProject(_project, _project.documentId);
                           }else
                           await _awaitCallingProjectLangDtls(
@@ -722,6 +725,8 @@ class _AddNewProjectState extends State<AddNewProject> {
           }
         }else {
           _project.documentId = Uuid().v4();
+          _project.available = true;
+          _project.supervisorName = await (getUserName(_project.supervisor));
           await addProject(_project, _project.documentId);
           Alert(
             context: context,
@@ -756,6 +761,8 @@ class _AddNewProjectState extends State<AddNewProject> {
     _project.supervisor = progObj.data['supervisor'];
     _project.proposedBy = progObj.data['proposedBy'];
     _project.noOfStudents =progObj.data['noOfStudents'];
+    _project.supervisorName =progObj.data['supervisorName'];
+    _project.available =progObj.data['available'];
 
     return _project;
   }
@@ -788,6 +795,7 @@ class _AddNewProjectState extends State<AddNewProject> {
             _assigned = false;
         } else {
           await assignProjectToStudent(globals.userId, _project.documentId);
+          await updateProjectAvailable(_project.documentId, false);
           Alert(
             context: context,
             title: "Success!",

@@ -7,6 +7,7 @@ import 'package:graduater/models/project_languages.dart';
 import 'package:graduater/models/project_skills.dart';
 import 'package:graduater/models/projects.dart';
 import 'package:graduater/models/skills.dart';
+import 'package:graduater/models/staff.dart';
 import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:graduater/components/screenTitleWidget.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
@@ -29,16 +30,20 @@ class _ShowProjectsState extends State<ShowProjects> {
   List<Projects> _projects = [];
   List<String> _queryProjects = [];
   List<Skills> _skills = [];
+  List<Staff> _staff = [];
   List<ProjectSkills> _projectSkills = [];
   List<ProjectLanguages> _projectLangs = [];
   List<String> _skillsList =['Select a skill...'];
+  List<String> _staffList =['Select a supervisor...'];
   String _selectedSkill;
+  String _selectedStaff;
   List<ProgrammingLanguages> _langs = [];
   List<String> _langsList =['Select a language...'];
   String _selectedLang;
   bool skillsFound = false;
   bool langsFound = false;
   bool visible = false;
+  bool isSwitched = false;
 
   final _ctrlSkillId = TextEditingController();
   final _ctrlLangId = TextEditingController();
@@ -47,9 +52,7 @@ class _ShowProjectsState extends State<ShowProjects> {
   @override
   void initState(){
     super.initState();
-    setState(() {
-
-    });
+    setState(() {  });
     skillsFound = false;
     langsFound = false;
     _queryProjects.clear();
@@ -59,7 +62,7 @@ class _ShowProjectsState extends State<ShowProjects> {
     _getAllProjects();
     _refreshSkillList();
     _refreshLangList();
-
+    _refreshStaffList();
   }
   static const TextStyle optionStyle =
   TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
@@ -120,7 +123,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                 color: Colors.white,
                 highlightColor: Colors.white70,
                 onPressed: () async{
-                    Navigator.pushNamed(context, '/adminMenu');
+                  Navigator.pushNamed(context, '/adminMenu');
                 }),
             visible: globals.admin?true:false,
           ),
@@ -137,7 +140,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                 decoration: BoxDecoration(
                     color: Colors.blue[900],
                     image: DecorationImage(
-                        image: AssetImage("images/bcu.png"),
+                      image: AssetImage("images/bcu.png"),
                     )
                 ),
                 child: Padding(
@@ -148,14 +151,14 @@ class _ShowProjectsState extends State<ShowProjects> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.person,
-                        color: Colors.white),
+                          color: Colors.white),
                       SizedBox(width: 5.0,),
                       Expanded(
                         child:Text(
                           (globals.email??'?'),
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 14,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -164,9 +167,31 @@ class _ShowProjectsState extends State<ShowProjects> {
                 ),
               ),
             ),
-            SizedBox(height: 15.0,),
+            SizedBox(height: 5.0,),
             Column(
               children: [
+                Container(
+                  height: 35.0,
+                  margin: EdgeInsets.all(5.0),
+                  color: Colors.yellow,
+                  child:  FutureBuilder<String>(
+                    future: _getBannerInfo(), // a previously-obtained Future<String> or null
+                    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      if (snapshot.hasData) {
+                        return Center(
+                          child: Text(snapshot.data,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12.0,
+                            ),),
+                        );
+                      }else
+                        return Container();
+                    },
+                  ),
+                ),
+                SizedBox(height: 20.0,),
                 DropdownButton<String>(
                   value: _selectedLang,
                   icon: Icon(Icons.arrow_downward),
@@ -215,6 +240,54 @@ class _ShowProjectsState extends State<ShowProjects> {
                   }).toList(),
                 ),
                 SizedBox(height: 10.0,),
+                DropdownButton<String>(
+                  value: _selectedStaff,
+                  icon: Icon(Icons.arrow_downward),
+                  iconSize: 20,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  onChanged: (String newValue) {
+                    setState(() {
+                      _selectedStaff = newValue;
+                    });
+                  },
+                  items: _staffList
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 10.0,),
+                Container(
+                  margin: EdgeInsets.fromLTRB(30.0, 20.0, 0, 30.0),
+                  child: Row(
+                    children: [
+                      Text('Available ',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15.0,
+                        ),
+                      ),
+                      Switch(
+                        value: isSwitched,
+                        onChanged: (value) {
+                          setState(() {
+                            isSwitched = value;
+                          });
+                        },
+                        activeTrackColor: Colors.yellow,
+                        activeColor: Colors.orangeAccent,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 5.0,),
                 Container(
                   height: 40.0,
                   margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,20.0),
@@ -231,7 +304,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                         if (_langsList.indexOf(_selectedLang) != 0)
                           await _refreshQuerylangList(_selectedLang);
 
-                        if ((_skillsList.indexOf(_selectedSkill) == 0) && (_langsList.indexOf(_selectedLang) == 0))
+                        if ((!isSwitched) && (_skillsList.indexOf(_selectedSkill) == 0) && (_langsList.indexOf(_selectedLang) == 0) && (_staffList.indexOf(_selectedStaff) == 0))
                           _getAllProjects();
 
                         _projectsQuery();
@@ -248,15 +321,45 @@ class _ShowProjectsState extends State<ShowProjects> {
                             ),
                             SizedBox(width: 10.0,),
                             Text(
-                                'SEARCH',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontFamily: 'Montserrat'
-                                )
+                              'SEARCH',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontFamily: 'Montserrat'
+                              ),
                             ),
                           ],
-                        )
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 5.0,),
+                Container(
+                  height: 40.0,
+                  margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,20.0),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(20.0),
+                    shadowColor: Colors.blueGrey,
+                    color: Colors.blue[900],
+                    child: GestureDetector(
+                      onTap: () async{
+                        _selectedStaff = _staffList[0];
+                        _selectedSkill = _skillsList[0];
+                        _selectedLang = _langsList[0];
+                        isSwitched = false;
+                        _getAllProjects();
+                        setState(() { });
+                        Navigator.of(context).pop();
+                      },
+                      child: Center(
+                        child: Text('REFRESH',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontFamily: 'Montserrat'
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -264,7 +367,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                 SizedBox(height: 5.0,),
                 ListTile(
                   leading: Icon(Icons.assignment,
-                  color: Colors.blue[900],),
+                    color: Colors.blue[900],),
                   title: Text('Add New Project'),
                   onTap: () async{
                     await _awaitCallingProjectDtls(null, 1);
@@ -291,7 +394,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                 SizedBox(height: 2.0,),
                 ListTile(
                   leading: Icon(Icons.chat,
-                  color: Colors.yellow),
+                      color: Colors.yellow),
                   title: Text('Chat'),
                   onTap: () {
                     Navigator.pushNamed(context, '/showRooms');
@@ -299,12 +402,12 @@ class _ShowProjectsState extends State<ShowProjects> {
                 ),
                 SizedBox(height: 2.0,),
                 ListTile(
-                  leading: Icon(Icons.assignment_turned_in,
-                  color: Colors.deepOrange,),
-                  title: Text('My Project'),
-                  onTap: () {
-                    callMyProject();
-                  }
+                    leading: Icon(Icons.assignment_turned_in,
+                      color: Colors.deepOrange,),
+                    title: Text('My Project'),
+                    onTap: () {
+                      callMyProject();
+                    }
                 ),
                 SizedBox(height: 2.0,),
                 Container(
@@ -348,91 +451,91 @@ class _ShowProjectsState extends State<ShowProjects> {
                 await _awaitCallingProjectDtls(_projects[index].documentId, 0);
               },
               child: Card(
-              margin: const EdgeInsets.all(3),
-              color: Colors.blue[50],
-              child: ListTile(
-                title: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.only(top: 10.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        verticalDirection: VerticalDirection.down,
-                        children: [
-                          Container(
-                            height: 40,
-                            width: 40,
-                            padding: EdgeInsets.only(top:8),
-                            child: Text((index+1).toString(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.bold,
+                margin: const EdgeInsets.all(3),
+                color: Colors.blue[50],
+                child: ListTile(
+                  title: Column(
+                    children: [
+                      Container(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.max,
+                            verticalDirection: VerticalDirection.down,
+                            children: [
+                              Container(
+                                height: 40,
+                                width: 40,
+                                padding: EdgeInsets.only(top:8),
+                                child: Text((index+1).toString(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.blueGrey[900],
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 3,
+                                  ),
+                                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                                ),
                               ),
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blueGrey[900],
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 3,
+                              SizedBox(width: 10.0,),
+                              Expanded(
+                                child: Text(_projects[index].projectTitle,
+                                  style: TextStyle(
+                                    color: Colors.indigo,
+                                    fontWeight: FontWeight.bold,
+                                  ),),
                               ),
-                              borderRadius: BorderRadius.all(Radius.circular(50)),
-                            ),
-                          ),
-                          SizedBox(width: 10.0,),
-                          Expanded(
-                            child: Text(_projects[index].projectTitle,
-                              style: TextStyle(
-                                color: Colors.indigo,
-                                fontWeight: FontWeight.bold,
-                              ),),
-                          ),
-                        ],
-                      )
-                    ),
-                    SizedBox(height: 10.0,),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child:  FutureBuilder<String>(
-                        future: getUserName(_projects[index].supervisor), // a previously-obtained Future<String> or null
-                        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                          if (snapshot.hasData) {
-                            return Text(snapshot.data,
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),);
-                          }else
-                            return Container();
-                        },
+                            ],
+                          )
                       ),
-                    ),
-                    SizedBox(height: 10.0,),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child:  FutureBuilder<String>(
-                        future: getStudentAssignedName(_projects[index].documentId),
-                        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                          if (snapshot.hasData) {
-                            return Text('Assigned to : '+snapshot.data,
-                              style: TextStyle(
-                                color: Colors.green[900],
-                                fontSize: 13.0,
-                                //fontWeight: FontWeight.bold,
-                              ),);
-                          }else
-                            return Container();
-                        },
+                      SizedBox(height: 10.0,),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child:  FutureBuilder<String>(
+                          future: getUserName(_projects[index].supervisor), // a previously-obtained Future<String> or null
+                          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(snapshot.data,
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),);
+                            }else
+                              return Container();
+                          },
+                        ),
                       ),
-                    ),
-                  ]
+                      SizedBox(height: 10.0,),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child:  FutureBuilder<String>(
+                          future: getStudentAssignedName(_projects[index].documentId),
+                          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                            if (snapshot.hasData) {
+                              return Text('Assigned to : '+snapshot.data,
+                                style: TextStyle(
+                                  color: Colors.green[900],
+                                  fontSize: 13.0,
+                                  //fontWeight: FontWeight.bold,
+                                ),);
+                            }else
+                              return Container();
+                          },
+                        ),
+                      ),
+                    ]
+                  ),
                 ),
               ),
-            ),
-           );
+            );
           },
         ),
       ),
@@ -472,110 +575,116 @@ class _ShowProjectsState extends State<ShowProjects> {
     child: Form(
       key: _formKey,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 250.0,
-            height: 30.0,
-            decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                side: BorderSide(width: 1.0, style: BorderStyle.solid, color: Colors.black),
-                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 250.0,
+              height: 30.0,
+              decoration: ShapeDecoration(
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(width: 1.0, style: BorderStyle.solid, color: Colors.black),
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                ),
               ),
-            ),
-            child: DropdownButton(
-              isExpanded: true,
-              value: _selectedSkill,
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedSkill = newValue;
-                });
-              },
-              items: _skillsList.map((val){
-                return new DropdownMenuItem<String>(
-                  value: val,
-                  child: new Text(val,
-                    style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue[900]
-                    ),),
-                );
-              }).toList(),
-            ),
-          ),
-          SizedBox(height: 5.0),
-          Container(
-            width: 250.0,
-            height: 30.0,
-            decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                side: BorderSide(width: 1.0, style: BorderStyle.solid,color: Colors.black),
-                borderRadius: BorderRadius.all(Radius.circular(5.0)),
-              ),
-            ),
-            child: DropdownButton(
-              isExpanded: true,
-              value: _selectedLang,
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedLang = newValue;
-                });
-              },
-              items: _langsList.map((val){
-                return new DropdownMenuItem<String>(
-                  value: val,
-                  child: new Text(val,
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[900]
-                  ),),
-                );
-              }).toList(),
-            ),
-          ),
-          SizedBox(height: 5.0,),
-          Container(
-            width: 250.0,
-            padding: EdgeInsets.all(5.0),
-            child: Container(
-              height: 40.0,
-              margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,5.0),
-              child: Material(
-                borderRadius: BorderRadius.circular(20.0),
-                shadowColor: Colors.blueGrey,
-                color: Colors.blue,
-                child: GestureDetector(
-                  onTap: () {
-
-                  },
-                  child: Center(
-                    child: Text(
-                      'RUN',
+              child: DropdownButton(
+                isExpanded: true,
+                value: _selectedSkill,
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedSkill = newValue;
+                  });
+                },
+                items: _skillsList.map((val){
+                  return new DropdownMenuItem<String>(
+                    value: val,
+                    child: new Text(val,
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontFamily: 'Montserrat',
-                        fontSize: 18.0,
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[900]
+                      ),),
+                  );
+                }).toList(),
+              ),
+            ),
+            SizedBox(height: 5.0),
+            Container(
+              width: 250.0,
+              height: 30.0,
+              decoration: ShapeDecoration(
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(width: 1.0, style: BorderStyle.solid,color: Colors.black),
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                ),
+              ),
+              child: DropdownButton(
+                isExpanded: true,
+                value: _selectedLang,
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedLang = newValue;
+                  });
+                },
+                items: _langsList.map((val){
+                  return new DropdownMenuItem<String>(
+                    value: val,
+                    child: new Text(val,
+                      style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[900]
+                      ),),
+                  );
+                }).toList(),
+              ),
+            ),
+            SizedBox(height: 5.0,),
+            Container(
+              width: 250.0,
+              padding: EdgeInsets.all(5.0),
+              child: Container(
+                height: 40.0,
+                margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,5.0),
+                child: Material(
+                  borderRadius: BorderRadius.circular(20.0),
+                  shadowColor: Colors.blueGrey,
+                  color: Colors.blue,
+                  child: GestureDetector(
+                    onTap: () {
+
+                    },
+                    child: Center(
+                      child: Text(
+                        'RUN',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontFamily: 'Montserrat',
+                          fontSize: 18.0,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ]
+          ]
       ),
     ),
   );
 
+  Future<String> _getBannerInfo() async { // Firestore DB
+    QuerySnapshot avail = await getProjectAvailableDocuments(true);
+    int availableCount = avail.documents.length;
+    QuerySnapshot allProj = await getProjectDocuments();
+    int projectsCount = allProj.documents.length;
+
+    return "Available projects: "+ availableCount.toString()+  " of "+ projectsCount.toString();
+  }
+
   _getAllProjects() async{ // Firestore DB
     _projects = await getProjectsList();
-
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   Future<List<Projects>> getProjectsList() async {
@@ -588,8 +697,50 @@ class _ShowProjectsState extends State<ShowProjects> {
             doc.data['projectDesc'],
             doc.data['proposedBy'],
             doc.data['supervisor'],
-            doc.data['noOfStudents'])
+            doc.data['noOfStudents'],
+            doc.data['supervisorName'],
+            doc.data['available'])
     ).toList();
+  }
+
+  _getAllSuperProjects(String spr) async{ // Firestore DB
+    _projects.addAll(await getProjectsSupervisorList(spr));
+    setState(() {});
+  }
+
+  Future<List<Projects>> getProjectsSupervisorList(String spr) async {
+    QuerySnapshot qShot = await getProjectSupervisorDocuments(spr);
+    return qShot.documents.map(
+            (doc) => Projects(
+            doc.documentID,
+            doc.data['projectTitle'],
+            doc.data['projectDesc'],
+            doc.data['proposedBy'],
+            doc.data['supervisor'],
+            doc.data['noOfStudents'],
+            doc.data['supervisorName'],
+            doc.data['available'])
+    ).toList();
+  }
+
+  Future<List<Projects>> getProjectsAvailableList() async {
+    QuerySnapshot qShot = await getProjectAvailableDocuments(true);
+    return qShot.documents.map(
+            (doc) => Projects(
+            doc.documentID,
+            doc.data['projectTitle'],
+            doc.data['projectDesc'],
+            doc.data['proposedBy'],
+            doc.data['supervisor'],
+            doc.data['noOfStudents'],
+            doc.data['supervisorName'],
+            doc.data['available'])
+    ).toList();
+  }
+
+  _getAllAvailableProjects() async { // Firestore DB
+    _projects.addAll(await getProjectsAvailableList());
+    setState(() {});
   }
 
   _refreshSkillList() async{
@@ -599,6 +750,16 @@ class _ShowProjectsState extends State<ShowProjects> {
     });
     _skillsList.addAll(_skills.map((e) => e.skillDesc).toList());
     _selectedSkill = _skillsList[0];
+  }
+
+  _refreshStaffList() async{
+    QuerySnapshot qShot = await getStaffDocuments();
+
+    for (int row=0; row<qShot.documents.length; row++){
+      _staffList.add(qShot.documents[row].data['staffName']);
+    }
+
+    _selectedStaff = _staffList[0];
   }
 
   _refreshLangList() async{
@@ -701,9 +862,18 @@ class _ShowProjectsState extends State<ShowProjects> {
       }
     }
 
-    if ((_selectedSkill == _skillsList[0]) && (_selectedLang == _langsList[0])){
+    if (_selectedStaff != _staffList[0]){
+      _getAllSuperProjects(_selectedStaff);
+    }
+
+    if ((! isSwitched) && (_selectedSkill == _skillsList[0]) && (_selectedLang == _langsList[0]) && (_selectedStaff == _staffList[0])){
       _getAllProjects();
     }
+
+    if (isSwitched){
+      _getAllAvailableProjects();
+    }
+
     setState(() {});
   }
 
@@ -714,8 +884,8 @@ class _ShowProjectsState extends State<ShowProjects> {
         title: "Error!",
         desc: "This option just for students",
         image: Image.asset("images/fail.png"),
-        ).show();
-        _selectedIndex = 0;
+      ).show();
+      _selectedIndex = 0;
     }else
     if (await isStudentHasProject(globals.userId)) {
       Alert(

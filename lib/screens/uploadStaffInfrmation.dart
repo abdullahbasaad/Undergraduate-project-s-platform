@@ -49,11 +49,11 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
               await _uploadStaffInfo();
               if (_staff.length >0)
                 Alert(
-                    context: context,
-                    title: "Success!",
-                    desc: _staff.length.toString()+' staff info have been inserted',
-                    image: Image.asset("images/success.png"),
-                    ).show();
+                  context: context,
+                  title: "Success!",
+                  desc: _staff.length.toString()+' staff info have been inserted',
+                  image: Image.asset("images/success.png"),
+                ).show();
             },
             color: Color.fromRGBO(0, 179, 134, 1.0),
           ),
@@ -97,39 +97,39 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
               child: ListTile(
                 leading: Icon(Icons.account_circle),
                 title: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.only(top: 10.0),
-                      child: Text(_data[index][0].toString(),
-                        style: TextStyle(
-                          color: Colors.indigo,
-                          fontWeight: FontWeight.bold,
-                        ),),
-                    ),
-                    SizedBox(height: 2.0,),
-                    Container(
+                    children: [
+                      Container(
                         padding: EdgeInsets.only(top: 10.0),
-                        child: Text (_data[index][1],)
-                    ),
-                    SizedBox(height: 2.0,),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text(_data[index][2].toString(),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,),
+                        child: Text(_data[index][0].toString(),
+                          style: TextStyle(
+                            color: Colors.indigo,
+                            fontWeight: FontWeight.bold,
+                          ),),
                       ),
-                    ),
-                    SizedBox(height: 2.0,),
-                    Container(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Text(_data[index][3].toString(),
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,),
+                      SizedBox(height: 2.0,),
+                      Container(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Text (_data[index][1],)
                       ),
-                    ),
-                  ]
+                      SizedBox(height: 2.0,),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text(_data[index][2].toString(),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,),
+                        ),
+                      ),
+                      SizedBox(height: 2.0,),
+                      Container(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text(_data[index][3].toString(),
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,),
+                        ),
+                      ),
+                    ]
                 ),
               ),
             );
@@ -168,10 +168,10 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
         _staff.add(staff);
 
         Firestore.instance.collection("staff").document().setData(
-        {'staffId': staff.staffId,
-        'staffName': staff.staffName,
-        'officeNo': staff.officeNo,
-        'address': staff.address});
+            {'staffId': staff.staffId,
+              'staffName': staff.staffName,
+              'officeNo': staff.officeNo,
+              'address': staff.address});
 
       }catch(e){
         Alert(
@@ -189,6 +189,3 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
   }
 
 }
-
-
-

@@ -1,11 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graduater/api/graduater_api.dart';
 import 'package:graduater/components/screenTitleWidget.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
 import 'package:graduater/models/projects.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -21,63 +23,75 @@ class _UploadProjectsState extends State<UploadProjects> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController _semicircleController = ScrollController();
-
-  List<List<dynamic>> _data = [];
   List<Projects> _projects = [];
+  List<String> projectTitle = [];
+  List<String> projectDesc = [];
+  List<String> supervisor = [];
+  List<String> supervisorNames = [];
+  List<String> skills = [];
+  List<String> langs = [];
+
   bool _inserted = false;
+  String fileName;
+  String path;
+  Map<String, String> paths;
+  List<String> extensions;
+  bool isLoadingPath = false;
+  bool isMultiPick = false;
+  FileType fileType;
 
   @override
   void initState(){
     super.initState();
     setState(() {
-      //_dbHelper = DatabaseHelper.instance;
     });
     _inserted = false;
   }
+
   // This function is triggered when the floating button is pressed
   void _loadCSV() async {
-    final _rawData = await rootBundle.loadString("assets/project_list.csv");
-    List<List<dynamic>> _listData = CsvToListConverter().convert(_rawData);
-    setState(() {
-      _data = _listData;
 
+    await showProjects();
+    QuerySnapshot qsUsers = await Firestore.instance.collection('user').getDocuments();
+    QuerySnapshot qsStaff = await Firestore.instance.collection('staff').getDocuments();
+
+    if (qsUsers.documents.length == 0 || qsStaff.documents.length ==0)
       Alert(
         context: context,
-        type: AlertType.warning,
-        title: "Upload projects",
-        desc: "Would you like to save all projects in the database?",
-        buttons: [
-          DialogButton(
-            child: Text(
-              "YES",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () async{
-              await _uploadProjects();
-              if (_inserted)
-                Alert(
-                  context: context,
-                  title: "Success!",
-                  desc: _projects.length.toString()+' projects have been inserted',
-                  image: Image.asset("images/success.png"),
-                ).show();
-            },
-            color: Color.fromRGBO(0, 179, 134, 1.0),
-          ),
-          DialogButton(
-            child: Text(
-              "CANCEL",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () => Navigator.pop(context),
-            gradient: LinearGradient(colors: [
-              Color.fromRGBO(116, 116, 191, 1.0),
-              Color.fromRGBO(52, 138, 199, 1.0)
-            ]),
-          )
-        ],
+        title: "Erorr!",
+        desc: "Staff and student information must be uploaded first!..",
+        image: Image.asset("images/fail.png"),
       ).show();
-    });
+    else {
+      setState(()  {
+        Alert(
+          context: context,
+          type: AlertType.warning,
+          title: "Upload projects",
+          desc: "Would you like to save all projects in the database?",
+          buttons: [
+            DialogButton(
+              child: Text(
+                "YES",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () async {
+                await _uploadProjects();
+                if (_inserted)
+                  Alert(
+                    context: context,
+                    title: "Success!",
+                    desc: _projects.length.toString() +
+                        ' projects have been inserted',
+                    image: Image.asset("images/success.png"),
+                  ).show();
+              },
+              color: Color.fromRGBO(0, 179, 134, 1.0),
+            ),
+          ],
+        ).show();
+      });
+    }
   }
 
   @override
@@ -91,37 +105,39 @@ class _UploadProjectsState extends State<UploadProjects> {
         controller: _semicircleController,
         child: ListView.builder(
           controller: _semicircleController,
-          itemCount: _data.length,
+          itemCount: projectTitle.length,
           itemBuilder: (_, index) {
             return Card(
               margin: const EdgeInsets.all(3),
-              color: index == 0 ? Colors.white54 : Colors.white,
               child: ListTile(
                 title: Column(
                     children: [
                       Container(
                         padding: EdgeInsets.only(top: 10.0),
-                        child: Text(_data[index][0].toString(),
+                        child: Text(projectTitle[index],
                           style: TextStyle(
                             color: Colors.indigo,
                             fontWeight: FontWeight.bold,
                           ),),
                       ),
-                      SizedBox(height: 5.0,),
-                      Container(
-                          padding: EdgeInsets.only(top: 10.0),
-                          child: Text(_data[index][1],)
-                      ),
-                      SizedBox(height: 20.0,),
+                      SizedBox(height: 15.0,),
                       Container(
                         padding: EdgeInsets.only(bottom: 10.0),
-                        child: Text(_data[index][2].toString(),
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,),
+                        child:  FutureBuilder<String>(
+                          future: getUserName(int.parse(supervisor[index])),
+                          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(snapshot.data,
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),);
+                            }else
+                              return Container();
+                          },
                         ),
                       ),
-                    ]
+                    ],
                 ),
               ),
             );
@@ -137,25 +153,26 @@ class _UploadProjectsState extends State<UploadProjects> {
     color: Colors.white,
     size: 50.0,
   );
+
   _uploadProjects() async{
     String skl;
     String lng;
-    for (int row=1; row<_data.length; row++){
+    String sprName;
+    for (int row=0; row<projectTitle.length; row++){
       skl='';
       lng='';
       try {
-        if (_data[row][0] == null) _data[row][0] = 'No Title';
-        if (_data[row][1] == null) _data[row][1] = 'No Description';
-
-        Projects project = Projects(null,_data[row][0],_data[row][1],_data[row][2],_data[row][2],1);
+        if (projectTitle[row] == null) projectTitle[row] = 'No Title';
+        sprName = await getUserName(int.parse(supervisor[row]));
+        Projects project = Projects(null,projectTitle[row],projectTitle[row],int.parse(supervisor[row]),int.parse(supervisor[row]),1,sprName,true);
         project.documentId = Uuid().v4();
         addProject(project, project.documentId);
 
-        skl = _data[row][3];
+        skl = skills[row];
         if (skl.length > 0)
           await insertSkills(skl, project.documentId);
 
-        lng = _data[row][4];
+        lng = langs[row];
         if (lng.length > 0)
           await insertLangs(lng, project.documentId);
 
@@ -220,5 +237,51 @@ class _UploadProjectsState extends State<UploadProjects> {
         await addNewLangNId(sen);
       await  addProjectLang(prj, sen);
     }
+  }
+
+  showProjects() async{
+    clearLists();
+    setState(() => isLoadingPath = true);
+    try {
+      path = await FilePicker.getFilePath(type: fileType != null? fileType: FileType.any, allowedExtensions: extensions);
+      paths = null;
+    }
+    on PlatformException catch (e) {
+      Alert(
+        context: context,
+        title: "Erorr!",
+        desc: "Unsupported operation" + e.toString(),
+        image: Image.asset("images/fail.png"),
+      ).show();
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoadingPath = false;
+      fileName = path != null ? path.split('/').last : paths != null
+          ? paths.keys.toString() : '...';
+    });
+
+    final input = new File(path).openRead();
+    final fields = await input.transform(utf8.decoder).transform(new CsvToListConverter()).toList();
+
+    for (int i=1; i<fields.length; i++) {
+      projectTitle.add(fields[i][0].toString());
+      projectDesc.add(fields[i][1].toString());
+      supervisor.add(fields[i][2].toString());
+      skills.add(fields[i][3].toString());
+      langs.add(fields[i][4].toString());
+    }
+  }
+
+  clearLists(){
+    _projects.clear();
+    projectTitle.clear();
+    projectDesc.clear();
+    supervisor.clear();
+    supervisorNames.clear();
+    skills.clear();
+    langs.clear();
   }
 }

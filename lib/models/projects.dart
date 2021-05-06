@@ -8,7 +8,10 @@ class Projects {
   int proposedBy;
   int supervisor;
   int noOfStudents;
+  String supervisorName;
+  bool available;
   Timestamp createdDt;
 
-  Projects(this.documentId,this.projectTitle,this.projectDesc,this.proposedBy,this.supervisor,this.noOfStudents);
+
+  Projects(this.documentId,this.projectTitle,this.projectDesc,this.proposedBy,this.supervisor,this.noOfStudents, this.supervisorName, this.available);
 }
