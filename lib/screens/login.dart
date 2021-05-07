@@ -6,8 +6,10 @@ import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:graduater/models/user.dart';
 import 'package:graduater/models/globals.dart' as globals;
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import '../constant.dart';
 import 'forgotPassword.dart';
+import 'package:connectivity/connectivity.dart';
 
 enum AuthMode { Register, Login }
 
@@ -45,10 +47,19 @@ class _LoginState extends State<Login> {
     AuthNotifier authNotifier = Provider.of<AuthNotifier>(
         context, listen: false);
 
-    if (_authMode == AuthMode.Login) {
-      login(_user, authNotifier, context);
-    } else {
-      register(_user, authNotifier);
+    if (await _checkConnectivity()) {
+      if (_authMode == AuthMode.Login) {
+        login(_user, authNotifier, context);
+      } else {
+        register(_user, authNotifier);
+      }
+    }else{
+      Alert(
+        context: context,
+        title: "Error!!",
+        desc: "No signal, please check the internet connection!..",
+        image: Image.asset("images/fail.png"),
+      ).show();
     }
   }
 
@@ -246,5 +257,13 @@ class _LoginState extends State<Login> {
         ),
       ),
     );
+  }
+
+  Future<bool> _checkConnectivity() async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if ((connectivityResult == ConnectivityResult.mobile) || (connectivityResult == ConnectivityResult.wifi))
+      return true;
+    else
+      return false;
   }
 }

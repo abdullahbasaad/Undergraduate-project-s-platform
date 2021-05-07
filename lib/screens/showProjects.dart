@@ -440,7 +440,10 @@ class _ShowProjectsState extends State<ShowProjects> {
           ],
         ),
       ),
-      body: DraggableScrollbar.semicircle(
+      body: Scrollbar(
+        showTrackOnHover: true,
+        thickness: 12.0,
+        isAlwaysShown: true,
         controller: _semicircleController,
         child: ListView.builder(
           controller: _semicircleController,

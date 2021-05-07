@@ -295,7 +295,7 @@ class _AdminMenuState extends State<AdminMenu> {
       ),
       body: Scrollbar(
         showTrackOnHover: true,
-        thickness: 9.0,
+        thickness: 12.0,
         isAlwaysShown: true,
         controller: _semicircleController,
         child: ListView.builder(
