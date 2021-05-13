@@ -236,7 +236,7 @@ class _AdminMenuState extends State<AdminMenu> {
             FlatButton(
               color: Colors.blue[900],
               textColor: Colors.white,
-              child: Text("Grant DBA role to a user"),
+              child: Text("Grant Admin's role to a user"),
               onPressed: () {
                 showDialog(
                     context: context,
