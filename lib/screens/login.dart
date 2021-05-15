@@ -29,6 +29,7 @@ class _LoginState extends State<Login> {
 
   User _user = User();
 
+  // This Function for initiating the page
   @override
   void initState() {
     AuthNotifier authNotifier = Provider.of<AuthNotifier>(context, listen: false);
@@ -38,6 +39,7 @@ class _LoginState extends State<Login> {
     _ctrlUserPassword.text = 'ab123456';
   }
 
+  // This Function to check user authentication
   void _submitForm() async{
     if (!_formKey.currentState.validate()) {
       return;
@@ -63,6 +65,7 @@ class _LoginState extends State<Login> {
     }
   }
 
+  // This Function to build different components in the page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -259,6 +262,7 @@ class _LoginState extends State<Login> {
     );
   }
 
+  // This Function to check the internet connection
   Future<bool> _checkConnectivity() async{
     var connectivityResult = await (Connectivity().checkConnectivity());
     if ((connectivityResult == ConnectivityResult.mobile) || (connectivityResult == ConnectivityResult.wifi))

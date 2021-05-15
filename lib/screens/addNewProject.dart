@@ -48,6 +48,7 @@ class _AddNewProjectState extends State<AddNewProject> {
   final _ctrlProposedName = TextEditingController();
   final _ctrlSuperviseddName = TextEditingController();
 
+  // This function for initiating page
   @override
   void initState() {
     super.initState();
@@ -63,6 +64,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     }
   }
 
+  // Function for building different page's components
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,6 +111,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     );
   }
 
+  // This function is sub part of building different page's components
   _form() => Form(
     key: _formKey,
     child: Column(
@@ -442,6 +445,8 @@ class _AddNewProjectState extends State<AddNewProject> {
       ]
     ),
   );
+
+  // This function is sub part of building different page's components
   _list() => Container(
     child: Card(
       margin: EdgeInsets.fromLTRB(20.0, 1.0, 20.0, 0),
@@ -516,6 +521,8 @@ class _AddNewProjectState extends State<AddNewProject> {
       ),
     ),
   );
+
+  // This function is sub part of building different page's components
   _list2() => Container(
     margin: EdgeInsets.only(top: 15.0),
     child: Card(
@@ -592,6 +599,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     ),
   );
 
+  // Getting all skills for a particualr project and fill them in the list
   Future<List<ProjectSkills>> getProjectSkillList() async {
     QuerySnapshot qShot = await getProjectSkills(widget.projectId);
     docProjSkillLength = qShot.documents.length;
@@ -603,6 +611,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     ).toList();
   }
 
+  // Getting all skills for a particualr project
   _refreshSkillList(String projectId) async{
     List<ProjectSkills> x = await getProjectSkillList();
     setState(() {
@@ -610,6 +619,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     });
   }
 
+  // Getting all programming languages for a particualr project then fill them in a list
   Future<List<ProjectLanguages>> getProjectLangList() async {
     QuerySnapshot qShot = await getProjectLangs(widget.projectId);
     docProjLangLength = qShot.documents.length;
@@ -621,6 +631,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     ).toList();
   }
 
+  // Getting all programming languages for a particualr project
   _refreshLangList(String projectId) async{
     List<ProjectLanguages> x = await getProjectLangList();
     setState(() {
@@ -628,6 +639,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     });
   }
 
+  // For Clearing all lists
   _resetForm(){
     _formKey.currentState.reset();
     _ctrlProjectTitle.clear();
@@ -637,6 +649,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     _ctrlNoOfStudents.clear();
   }
 
+  // This function shows a circular progress indicator while upload project skills details
   Future<void> _awaitCallingProjectSkillDtls(String projId, int whoCalled) async {
     _scaffoldKey.currentState.showSnackBar(
         SnackBar(duration: new Duration(seconds: 2), content:
@@ -655,6 +668,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     }
   }
 
+  // Returns how many students choose the current project
   Future<int> _chooseProject () async{
     if (widget.projectId != null)
       return await getHowManyStudentAssigned(widget.projectId);
@@ -662,10 +676,13 @@ class _AddNewProjectState extends State<AddNewProject> {
       return 0;
   }
 
+  // This function to delete a project's programming language
   Future<void> _deleteProjectLangDocument (String documentID) {
     return Firestore.instance.collection('projectLanguages').document(documentID).delete();
   }
 
+  // This function shows a circular progress indicator while upload project programming
+  // language details
   Future<void> _awaitCallingProjectLangDtls(String projId, int whoCalled) async {
     _scaffoldKey.currentState.showSnackBar(
         SnackBar(duration: new Duration(seconds: 2), content:
@@ -684,6 +701,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     }
   }
 
+  // This function to save project information after updating
   _onSubmit() async{
     var form = _formKey.currentState;
     if (form.validate()) {
@@ -738,6 +756,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     }
   }
 
+  // Returns boolean if a user has a privilege to update project information or not
   _checkEditabbleFields(){
     if (widget.projectId != null && globals.admin != true)
       return true;
@@ -745,6 +764,7 @@ class _AddNewProjectState extends State<AddNewProject> {
       return false;
   }
 
+  // Filling project details in the project pbject
   _getProjectDts() async{
     DocumentSnapshot  progObj = await getProjectDoc(widget.projectId);
     _ctrlProjectTitle.text = progObj.data['projectTitle'];
@@ -767,10 +787,13 @@ class _AddNewProjectState extends State<AddNewProject> {
     return _project;
   }
 
+  // Delete a selected skill of project
   Future<void> _deleteProjectSkill (String skillDoc) {
     return Firestore.instance.collection('projectSkills').document(skillDoc).delete();
   }
 
+  // This function used to assign a project to student. it has many checks before assigning operation
+  // is completed
   _checkAssigneeProject() async {
     if (_assigned) {
       if (await checkStudentExist(globals.userId)) {

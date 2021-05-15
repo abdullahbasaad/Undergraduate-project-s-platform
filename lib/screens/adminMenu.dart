@@ -34,14 +34,16 @@ class _AdminMenuState extends State<AdminMenu> {
   int docLength= 0;
   bool vsbl = false;
 
+  // Function for initiating the page
   @override
-  void initState(){
+  void initState() {
     super.initState();
     setState(() {
     });
     _getAllProjects();
   }
 
+  // Function to build the different components of a page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -416,16 +418,17 @@ class _AdminMenuState extends State<AdminMenu> {
     );
   }
 
+  // To fetch all project and store them in a list
   _getAllProjects() async{ // Firestore DB
     _projects = await getProjectsList();
     setState(() {
     });
   }
 
+  // To fetch all project documents
   Future<List<Projects>> getProjectsList() async {
     QuerySnapshot qShot = await getProjectDocuments();
     docLength = qShot.documents.length;
-
     return qShot.documents.map(
             (doc) => Projects(
             doc.documentID,
@@ -439,6 +442,7 @@ class _AdminMenuState extends State<AdminMenu> {
     ).toList();
   }
 
+  // Admin can assign a project to a particular student by using student id
   Future<void> assignProject (String projId, int studId) async{
     if (await checkStudentExist(studId)){
       if (await isStudentHasProject(studId)){
@@ -467,6 +471,7 @@ class _AdminMenuState extends State<AdminMenu> {
       ).show();
   }
 
+  // Function to call project details
   Future<void> _awaitCallingProjectDtls(String projDoc, int whoCalled) async {
     _scaffoldKey.currentState.showSnackBar(
         SnackBar(duration: new Duration(seconds: 2), content:

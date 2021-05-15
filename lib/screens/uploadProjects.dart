@@ -50,7 +50,6 @@ class _UploadProjectsState extends State<UploadProjects> {
 
   // This function is triggered when the floating button is pressed
   void _loadCSV() async {
-
     await showProjects();
     QuerySnapshot qsUsers = await Firestore.instance.collection('user').getDocuments();
     QuerySnapshot qsStaff = await Firestore.instance.collection('staff').getDocuments();
