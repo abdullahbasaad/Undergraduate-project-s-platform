@@ -192,6 +192,16 @@ Future<bool> checkStudentExist(int stdId) async {
     return false;
 }
 
+// Check if student id exists in the student's collection
+Future<bool> checkProjectSelected(String prj) async {
+  QuerySnapshot qShot = await Firestore.instance.collection('student').where('projectId', isEqualTo: prj).getDocuments();
+
+  if (qShot.documents.length > 0)
+    return true;
+  else
+    return false;
+}
+
 // Check if a particular skill exists in a specific project or not?
 Future<bool> checkSkillProjectDocuments(String projDoc, String skillDoc) async  {
   QuerySnapshot qShot = await Firestore.instance.collection('projectSkills').where('projDocument', isEqualTo: projDoc )

@@ -348,6 +348,10 @@ class _AdminMenuState extends State<AdminMenu> {
                                       _projects[index].documentId, int.parse(
                                       _textFieldAssignedController.text));
                                   await updateProjectAvailable(_projects[index].documentId, false);
+
+                                  setState(() {
+
+                                  });
                                 }else
                                   Alert(
                                     context: context,
@@ -444,10 +448,12 @@ class _AdminMenuState extends State<AdminMenu> {
 
   // Admin can assign a project to a particular student by using student id
   Future<void> assignProject (String projId, int studId) async{
+    bool suc = false;
     if (await checkStudentExist(studId)){
       if (await isStudentHasProject(studId)){
         await assignProjectToStudent(studId, projId);
         await updateProjectAvailable(projId, false);
+        suc = true;
         Alert(
           context: context,
           title: "Success!",
@@ -469,6 +475,12 @@ class _AdminMenuState extends State<AdminMenu> {
         desc: "Incorrect student ID!..",
         image: Image.asset("images/fail.png"),
       ).show();
+
+    if (suc) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+    }
+
   }
 
   // Function to call project details
@@ -483,17 +495,19 @@ class _AdminMenuState extends State<AdminMenu> {
         ),
     ));
 
+    bool vis = await checkStudentExist(globals.userId);
+    bool asg = await checkProjectSelected(projDoc);
     if (whoCalled == 0){
       final result = await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => AddNewProject(projectId: projDoc, pageTitle: 'Project Details')
+              builder: (context) => AddNewProject(projectId: projDoc, pageTitle: 'Project Details', vsbl: vis, assigned: asg)
           ));
     }else{
       final result = await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => AddNewProject(projectId: null, pageTitle: 'Add New Project')
+              builder: (context) => AddNewProject(projectId: null, pageTitle: 'Add New Project', vsbl: false, assigned: asg)
           ));
     }
   }

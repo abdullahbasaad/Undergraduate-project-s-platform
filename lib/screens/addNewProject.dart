@@ -19,7 +19,9 @@ class AddNewProject extends StatefulWidget {
 
   final String projectId;
   final String pageTitle;
-  AddNewProject({Key key, this.projectId, this.pageTitle}) : super(key: key);
+  final bool vsbl;
+  final bool assigned;
+  AddNewProject({Key key, this.projectId, this.pageTitle, this.vsbl, this.assigned}) : super(key: key);
 
   @override
   _AddNewProjectState createState() => _AddNewProjectState();
@@ -324,22 +326,25 @@ class _AddNewProjectState extends State<AddNewProject> {
                       ),
                     ),
                     SizedBox(width: 50.0,),
-                    Expanded(
-                      child:CheckboxListTile(
-                        controlAffinity: ListTileControlAffinity.leading,
-                        secondary: const Icon(Icons.assignment_turned_in),
-                        title: Text("Assign it to me",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),),
-                        checkColor: Colors.white,
-                        activeColor: Colors.black,
-                        value: _assigned,
-                        onChanged: (bool value) async {
-                          _assigned = value;
-                          setState(() {});
-                        },
+                    Visibility(
+                      visible: !widget.assigned,
+                      child: Expanded(
+                        child:CheckboxListTile(
+                          controlAffinity: ListTileControlAffinity.leading,
+                          secondary: const Icon(Icons.assignment_turned_in),
+                          title: Text("Assign it to me",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),),
+                          checkColor: Colors.white,
+                          activeColor: Colors.black,
+                          value: _assigned,
+                          onChanged: (bool value) async {
+                            _assigned = value;
+                            setState(() {});
+                          },
+                        ),
                       ),
                     ),
                   ],
@@ -349,87 +354,93 @@ class _AddNewProjectState extends State<AddNewProject> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     //floatingActionButton:
-                    Container(
-                      height: 100.0,
-                      width: 130.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: Colors.blue,
-                      ),
-                      padding: EdgeInsets.all(20.0),
-                      child: GestureDetector(
-                        onTap: () async{
-                          if ((globals.userId != _project.proposedBy) && (globals.admin != true) && widget.projectId != null){
-                            Alert(
-                              context: context,
-                              title: "Warning!",
-                              desc: "Invalid privileges",
-                              image: Image.asset("images/fail.png"),
-                            ).show();
-                          }
-                          else
-                            if (_project.documentId == null) {
-                              _project.documentId = Uuid().v4();
-                              await addProject(_project, _project.documentId);
-                            }else
-                            await _awaitCallingProjectSkillDtls(
-                                _project.documentId, 0);
-                        },
-                        child: Center(
-                          child: Text(
-                            "ADD\nSKILLS      ",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontFamily: 'Montserrat',
-                              fontSize: 18.0,
+                    Visibility(
+                      visible: !widget.vsbl,
+                      child: Container(
+                        height: 100.0,
+                        width: 130.0,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Colors.blue,
+                        ),
+                        padding: EdgeInsets.all(20.0),
+                        child: GestureDetector(
+                          onTap: () async{
+                            if ((globals.userId != _project.proposedBy) && (globals.admin != true) && widget.projectId != null){
+                              Alert(
+                                context: context,
+                                title: "Warning!",
+                                desc: "Invalid privileges",
+                                image: Image.asset("images/fail.png"),
+                              ).show();
+                            }
+                            else
+                              if (_project.documentId == null) {
+                                _project.documentId = Uuid().v4();
+                                await addProject(_project, _project.documentId);
+                              }else
+                              await _awaitCallingProjectSkillDtls(
+                                  _project.documentId, 0);
+                          },
+                          child: Center(
+                            child: Text(
+                              "ADD\nSKILLS      ",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'Montserrat',
+                                fontSize: 18.0,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                     SizedBox(width: 15.0,),
-                    Container(
-                      height: 100.0,
-                      width: 130.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: Colors.blue,
-                      ),
-                      padding: EdgeInsets.all(15.0),
-                      child: GestureDetector(
-                        onTap: () async{
-                          if ((globals.userId != _project.proposedBy) &&
-                              (globals.admin != true) &&
-                              (widget.projectId != null)) {
-                            Alert(
-                              context: context,
-                              title: "Warning!",
-                              desc: "Invalid privileges",
-                              image: Image.asset("images/fail.png"),
-                            ).show();
-                          }
-                          else
-                          if (_project.documentId == null) {
-                            _project.documentId = Uuid().v4();
-                            _project.supervisorName = await (getUserName(_project.supervisor));
-                            _project.available = true;
-                            await addProject(_project, _project.documentId);
-                          }else
-                          await _awaitCallingProjectLangDtls(
-                              _project.documentId, 0);
+                    Visibility(
+                      visible: !widget.vsbl,
+                      child: Container(
+                        height: 100.0,
+                        width: 130.0,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Colors.blue,
+                        ),
+                        padding: EdgeInsets.all(15.0),
+                        child: GestureDetector(
+                          onTap: () async{
+                            if ((globals.userId != _project.proposedBy) &&
+                                (globals.admin != true) &&
+                                (widget.projectId != null)) {
+                              Alert(
+                                context: context,
+                                title: "Warning!",
+                                desc: "Invalid privileges",
+                                image: Image.asset("images/fail.png"),
+                              ).show();
+                            }
+                            else
+                            if (_project.documentId == null) {
+                              _project.documentId = Uuid().v4();
+                              _project.supervisorName = await (getUserName(_project.supervisor));
+                              _project.available = true;
+                              await addProject(_project, _project.documentId);
+                            }else
+                            await _awaitCallingProjectLangDtls(
+                                _project.documentId, 0);
 
-                        },
-                        child: Center(
-                          child: Text(
-                            "ADD\nLANGUAGES",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontFamily: 'Montserrat',
-                              fontSize: 17.0,
+                          },
+                          child: Center(
+                            child: Text(
+                              "ADD\nLANGUAGES",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'Montserrat',
+                                fontSize: 17.0,
+                              ),
                             ),
                           ),
                         ),

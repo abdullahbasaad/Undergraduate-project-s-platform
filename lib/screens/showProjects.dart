@@ -785,17 +785,19 @@ class _ShowProjectsState extends State<ShowProjects> {
         ),
         ));
 
+    bool vis = await checkStudentExist(globals.userId);
+    bool asg = await checkProjectSelected(projId);
     if (whoCalled == 0){
       final result = await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => AddNewProject(projectId: projId, pageTitle: 'Project Details')
+              builder: (context) => AddNewProject(projectId: projId, pageTitle: 'Project Details', vsbl: vis, assigned: asg)
           ));
     }else{
       final result = await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => AddNewProject(projectId: null, pageTitle: 'Add New Project')
+              builder: (context) => AddNewProject(projectId: null, pageTitle: 'Add New Project', vsbl: false, assigned: asg)
           ));
     }
   }
