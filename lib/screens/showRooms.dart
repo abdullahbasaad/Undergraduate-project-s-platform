@@ -59,8 +59,6 @@ class _ShowRoomsState extends State<ShowRooms> {
           itemBuilder: (_, index) {
             return GestureDetector(
               onTap: () async{
-                print(receiver);
-                print(_rooms[index].docId);
                 globals.roomDoc = _rooms[index].docId;
                 await Navigator.push(
                     context,
@@ -83,12 +81,12 @@ class _ShowRoomsState extends State<ShowRooms> {
                   title: Container(
                     padding: EdgeInsets.only(bottom: 10.0),
                     child:  FutureBuilder<String>(
-                      future: _returnReceiverName(_rooms[index].receiver==globals.email?_rooms[index].sender:_rooms[index].receiver), // a previously-obtained Future<String> or null
+                      future: _returnReceiverName(_rooms[index].receiver==globals.email.toLowerCase()?_rooms[index].sender:_rooms[index].receiver), // a previously-obtained Future<String> or null
                       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                         if (snapshot.hasData) {
                           return Text(snapshot.data,
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.blue[900],
                               fontWeight: FontWeight.bold,
                               fontSize: 16.0,
                             ),);
@@ -101,7 +99,7 @@ class _ShowRoomsState extends State<ShowRooms> {
                   subtitle: Container(
                   padding: EdgeInsets.only(bottom: 10.0),
                   child:  FutureBuilder<String>(
-                    future: getStudentCourse(_rooms[index].receiver==globals.email?_rooms[index].sender:_rooms[index].receiver), // a previously-obtained Future<String> or null
+                    future: getStudentCourse(_rooms[index].receiver.toLowerCase()==globals.email.toLowerCase()?_rooms[index].sender:_rooms[index].receiver.toLowerCase()), // a previously-obtained Future<String> or null
                     builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                       if (snapshot.hasData) {
                         return Text(snapshot.data,
@@ -132,14 +130,14 @@ class _ShowRoomsState extends State<ShowRooms> {
             child: Icon(Icons.add,
               size: 20.0,
               color: Colors.white),
-            onPressed: showMyDialog),
+            onPressed: _showMyDialog),
       ),
     );
   }
 
   Future<String> _returnReceiverName(String email) async {
     String name;
-    name = await getUserNameFromEmail(email);
+    name = await getUserNameFromEmail(email.toLowerCase());
     if (name!=null)
       return name;
     else
@@ -156,7 +154,7 @@ class _ShowRoomsState extends State<ShowRooms> {
   }
 
   Future<List<MainRooms>> getRoomListAsSender() async {
-    QuerySnapshot qShot = await getAllUserRoomsAsSender(globals.email);
+    QuerySnapshot qShot = await getAllUserRoomsAsSender(globals.email.toLowerCase());
 
     return qShot.documents.map(
             (doc) => MainRooms(
@@ -168,7 +166,7 @@ class _ShowRoomsState extends State<ShowRooms> {
   }
 
   Future<List<MainRooms>> getRoomListAsReceiver() async {
-    QuerySnapshot qShot = await getAllUserRoomsAsReceiver(globals.email);
+    QuerySnapshot qShot = await getAllUserRoomsAsReceiver(globals.email.toLowerCase());
 
     return qShot.documents.map(
             (doc) => MainRooms(
@@ -179,7 +177,8 @@ class _ShowRoomsState extends State<ShowRooms> {
     ).toList();
   }
 
-   showMyDialog() async {
+   _showMyDialog() async {
+     _textFieldController.text = '';
      return showDialog(
          context: context,
          builder: (context) {
@@ -211,7 +210,7 @@ class _ShowRoomsState extends State<ShowRooms> {
                  textColor: Colors.white,
                  child: Text('OK'),
                  onPressed: () async {
-                   if (await checkEmailAddress(receiver)) {
+                   if (await checkEmailAddress(receiver.toLowerCase())) {
                      String sender = globals.email;
                      String roomDoc = await checkRoomExists(sender, receiver);
                      if (roomDoc == null) {

@@ -460,7 +460,6 @@ class _AdminMenuState extends State<AdminMenu> {
           desc: "The project assigned to the student successfully",
           image: Image.asset("images/success.png"),
         ).show();
-
       }else
         Alert(
           context: context,

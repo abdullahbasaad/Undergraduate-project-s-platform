@@ -54,7 +54,7 @@ class _ChatState extends State<Chat> {
             Container(
               padding: EdgeInsets.only(bottom: 3.0),
               child:  FutureBuilder<String>(
-                future: _returnReceiverName(widget.receiver==globals.email?widget.sender:widget.receiver),
+                future: _returnReceiverName(widget.receiver==globals.email.toLowerCase()?widget.sender:widget.receiver),
                 builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                   if (snapshot.hasData) {
                     return Text(snapshot.data,
@@ -84,7 +84,6 @@ class _ChatState extends State<Chat> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Expanded(
-
                     child: TextField(
                       controller: messageTextController,
                       onChanged: (value) {
@@ -97,7 +96,7 @@ class _ChatState extends State<Chat> {
                     onPressed: () async{
                       if (messageText != null) {
                         await addNewMessage(
-                            messageText, widget.room, globals.email,
+                            messageText, widget.room, globals.email.toLowerCase(),
                             widget.receiver);
                         messageTextController.clear();
                         messageText = null;
@@ -119,7 +118,7 @@ class _ChatState extends State<Chat> {
 
   Future<String> _returnReceiverName(String email) async {
     String name;
-    name = await getUserNameFromEmail(email);
+    name = await getUserNameFromEmail(email.toLowerCase());
     if (name!=null)
       return name;
     else
@@ -128,7 +127,6 @@ class _ChatState extends State<Chat> {
 }
 
 class MessagesStream extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(

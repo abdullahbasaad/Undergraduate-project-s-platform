@@ -6,6 +6,7 @@ import 'package:graduater/models/programming_languages.dart';
 import 'package:graduater/models/project_languages.dart';
 import 'package:graduater/screens/addNewProject.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:graduater/models/globals.dart' as globals;
 
 class AddProjectLangs extends StatefulWidget {
 
@@ -161,9 +162,11 @@ class _AddProjectLangsState extends State<AddProjectLangs> {
         ),
         ));
 
+    final bool vis = await checkStudentExist(globals.userId);
+    final bool asg = await checkProjectSelected(widget.projectDoc);
     final result = await Navigator.push(context,
         MaterialPageRoute(
-          builder: (context) => AddNewProject(projectId: widget.projectDoc, pageTitle: 'Project Details'),
+          builder: (context) => AddNewProject(projectId: widget.projectDoc, pageTitle: 'Project Details', vsbl: vis, assigned: asg),
         ));
   }
 
