@@ -14,11 +14,15 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 
 // Login function, check database (Firebase) authentication, ckeck a user profile, check application authentication
 login(User user, AuthNotifier authNotifier,BuildContext context) async {
-  print('user details'+user.password);
   AuthResult authResult = await FirebaseAuth.instance
-      .signInWithEmailAndPassword(
-      email: user.email, password: user.password)
-      .catchError((error) => print(error.code));
+      .signInWithEmailAndPassword(email: user.email, password: user.password)
+      // ignore: return_of_invalid_type_from_catch_error
+      .catchError((error) =>  Alert(
+                          context: context,
+                          title: "Error!!",
+                          desc: error.code,
+                          image: Image.asset("images/fail.png"),
+                        ).show());
 
   if (authResult.user != null) {
     globals.email = user.email;
@@ -29,7 +33,7 @@ login(User user, AuthNotifier authNotifier,BuildContext context) async {
       globals.email = firebaseUser.email;
 
       QuerySnapshot querySnapshot = await getDocuemntId(user.email.toLowerCase());
-print(querySnapshot.documents.length);
+
       if (querySnapshot.documents.length > 0){
         if (querySnapshot.documents[0].data['admin'])
           Navigator.pushNamed(context, '/adminMenu');

@@ -139,7 +139,7 @@ class _AddProjectLangsState extends State<AddProjectLangs> {
             Alert(
               context: context,
               title: "Failed!",
-              desc: "Skill is already inserted!",
+              desc: "Language is already inserted!",
               image: Image.asset("images/fail.png"),
             ).show();
           }else{
@@ -212,13 +212,14 @@ class _AddProjectLangsState extends State<AddProjectLangs> {
         saved = true;
       }
     }
-    if (saved)
-      Alert(
-        context: context,
-        title: "Success!",
-        desc: "Languages have been inserted",
-        image: Image.asset("images/success.png"),
-      ).show();
+    if (saved) await _awaitCallingProjectLangDtls();
+
+      // Alert(
+      //   context: context,
+      //   title: "Success!",
+      //   desc: "Languages have been inserted",
+      //   image: Image.asset("images/success.png"),
+      // ).show();
   }
 }
 

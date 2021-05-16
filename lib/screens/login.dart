@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graduater/api/graduater_api.dart';
-import 'package:graduater/models/globals.dart';
 import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:graduater/models/user.dart';
 import 'package:graduater/models/globals.dart' as globals;

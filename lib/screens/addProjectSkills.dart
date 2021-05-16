@@ -212,13 +212,13 @@ class _AddProjectSkillsState extends State<AddProjectSkills> {
         saved = true;
       }
     }
-    if (saved)
-      Alert(
-        context: context,
-        title: "Success!",
-        desc: "Languages have been inserted",
-        image: Image.asset("images/success.png"),
-      ).show();
+    if (saved) await _awaitCallingProjectSkillDtls();
+      // Alert(
+      //   context: context,
+      //   title: "Success!",
+      //   desc: "Languages have been inserted",
+      //   image: Image.asset("images/success.png"),
+      // ).show();
   }
 }
 
