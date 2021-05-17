@@ -704,7 +704,7 @@ Future<String> checkRoomExists(String sender, String receiver) async{
   }
 
   if (result2.documents.length > 0){
-    roomDoc = result1.documents[0].documentID;
+    roomDoc = result2.documents[0].documentID;
   }
   return roomDoc??null;
 }

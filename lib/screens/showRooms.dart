@@ -188,7 +188,7 @@ class _ShowRoomsState extends State<ShowRooms> {
                controller: _textFieldController,
                onChanged: (value) {
                  setState(() {
-                   receiver = value;
+                   receiver = value.toLowerCase();
                  });
                },
                decoration: InputDecoration(hintText: "EMAIL ADDRESS"),
@@ -210,9 +210,10 @@ class _ShowRoomsState extends State<ShowRooms> {
                  textColor: Colors.white,
                  child: Text('OK'),
                  onPressed: () async {
-                   if (await checkEmailAddress(receiver.toLowerCase())) {
+                   if (await checkEmailAddress(receiver)) {
                      String sender = globals.email;
                      String roomDoc = await checkRoomExists(sender, receiver);
+                     globals.roomDoc = roomDoc;
                      if (roomDoc == null) {
                        String newRoom = Uuid().v4();
                        globals.roomDoc = newRoom;
