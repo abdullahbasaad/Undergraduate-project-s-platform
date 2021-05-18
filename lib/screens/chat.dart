@@ -6,7 +6,6 @@ import 'package:graduater/api/graduater_api.dart';
 import 'package:graduater/screens/showRooms.dart';
 import 'package:intl/intl.dart';
 
-
 class Chat extends StatefulWidget {
   final room;
   final receiver;
@@ -20,6 +19,8 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   final messageTextController = TextEditingController();
   String messageText;
+  final TextEditingController textEditingController = TextEditingController();
+  final ScrollController listScrollController = ScrollController();
 
   @override
   void initState() {
@@ -85,27 +86,36 @@ class _ChatState extends State<Chat> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
-                      controller: messageTextController,
-                      onChanged: (value) {
-                        messageText = value;
-                      },
-                      decoration: kMessageTextFieldDecoration,
+                       controller: messageTextController,
+                       onChanged: (value) {
+                         messageText = value;
+                       },
+                       decoration: InputDecoration(
+                         hintText: 'Type your message...',
+                         hintStyle: TextStyle(color: Color(0xffaeaeae)),
+                         contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                         border: InputBorder.none,
+                       ),
                     ),
                   ),
-                  FlatButton(
-                    onPressed: () async{
-                      if (messageText != null) {
-                        await addNewMessage(
-                            messageText, widget.room, globals.email.toLowerCase(),
-                            widget.receiver);
-                        messageTextController.clear();
-                        messageText = null;
-                      }
-                    },
-                    child: Text(
-                      'Send',
-                      style: kSendButtonTextStyle,
+                  Material(
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: () async{
+                          if (messageText != null) {
+                            await addNewMessage(
+                                messageText, widget.room, globals.email.toLowerCase(),
+                                widget.receiver);
+                            messageTextController.clear();
+                            messageText = null;
+                          }
+                        },
+                        color: Colors.blue,
+                      ),
                     ),
+                    color: Colors.white,
                   ),
                 ],
               ),
@@ -138,7 +148,6 @@ class MessagesStream extends StatelessWidget {
           return Center(
             child: CircularProgressIndicator(
               backgroundColor: Colors.lightBlueAccent,
-
             ),
           );
         }else{
@@ -148,8 +157,6 @@ class MessagesStream extends StatelessWidget {
             final messageText = message.data['text'];
             final createdAt = message.data['createdAt'].toDate();
             final currentUser = globals.email;
-
-            //final dtFormat = DateFormat.yMEd().add_jms().format(createdAt);
 
             if (messageText != null) {
               final messageBubble = MessageBubble(
