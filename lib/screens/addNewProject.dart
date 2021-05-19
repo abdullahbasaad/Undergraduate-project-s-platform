@@ -41,6 +41,7 @@ class _AddNewProjectState extends State<AddNewProject> {
   int docProjSkillLength = 0;
   int docProjLangLength = 0;
   int noOfStd = 0;
+  bool showButtons = false;
 
   final _ctrlProjectTitle = TextEditingController();
   final _ctrlProjectDesc = TextEditingController();
@@ -56,6 +57,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     super.initState();
     setState(() {
     });
+    _showHideButtons();
     _projectSkills.clear();
     _projectLangs.clear();
 
@@ -77,26 +79,32 @@ class _AddNewProjectState extends State<AddNewProject> {
         actions: <Widget>[
           Row(
             children: [
-              IconButton(icon: const Icon(Icons.save,),
-                  tooltip: 'Save',
-                  iconSize: 33.0,
-                  color: Colors.white,
-                  highlightColor: Colors.white70,
-                  onPressed: () {
-                    _onSubmit();
-                  }),
-              IconButton(icon: const Icon(Icons.arrow_forward),
-                  tooltip: 'Save',
-                  iconSize: 24.0,
-                  color: Colors.white,
-                  highlightColor: Colors.white70,
-                  onPressed: () async{
+              Visibility(
+                visible: showButtons==true?false:true,
+                child: IconButton(icon: const Icon(Icons.save,),
+                    tooltip: 'Save',
+                    iconSize: 33.0,
+                    color: Colors.white,
+                    highlightColor: Colors.white70,
+                    onPressed: () {
+                      _onSubmit();
+                    }),
+              ),
+              Visibility(
+                visible: showButtons==true?false:true,
+                child: IconButton(icon: const Icon(Icons.arrow_forward),
+                    tooltip: 'Save',
+                    iconSize: 24.0,
+                    color: Colors.white,
+                    highlightColor: Colors.white70,
+                    onPressed: () async{
 
-                  if (globals.admin)
-                    Navigator.pushNamed(context, '/adminMenu');
-                  else
-                    Navigator.pushNamed(context, '/showProjects');
-                  }),
+                    if (globals.admin)
+                      Navigator.pushNamed(context, '/adminMenu');
+                    else
+                      Navigator.pushNamed(context, '/showProjects');
+                    }),
+              ),
             ],
           )
         ],
@@ -328,25 +336,51 @@ class _AddNewProjectState extends State<AddNewProject> {
                     SizedBox(width: 50.0,),
                     Visibility(
                       visible: !widget.assigned,
-                      child: Expanded(
-                        child:CheckboxListTile(
-                          controlAffinity: ListTileControlAffinity.leading,
-                          secondary: const Icon(Icons.assignment_turned_in),
-                          title: Text("Assign it to me",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),),
-                          checkColor: Colors.white,
-                          activeColor: Colors.black,
-                          value: _assigned,
-                          onChanged: (bool value) async {
-                            _assigned = value;
-                            setState(() {});
-                          },
+                      child: Container(
+                        width: 245.0,
+                        height: 50.0,
+                        child: Material(
+                          borderRadius: BorderRadius.circular(5.0),
+                          shadowColor: Colors.blueGrey,
+                          color: Colors.blue,
+                          child: GestureDetector(
+                            onTap: () async{
+                              _assigned = true;
+                              _checkAssigneeProject();
+                            },
+                            child: Center(
+                              child: Text(
+                                'ASSIGN IT TO ME..',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontFamily: 'Montserrat'
+                                ),
+                              ),
+
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                        // child:CheckboxListTile(
+                        //   controlAffinity: ListTileControlAffinity.leading,
+                        //   secondary: const Icon(Icons.assignment_turned_in),
+                        //   title: Text("Assign it to me",
+                        //     style: TextStyle(
+                        //       fontWeight: FontWeight.bold,
+                        //       color: Colors.black,
+                        //     ),),
+                        //   checkColor: Colors.white,
+                        //   activeColor: Colors.black,
+                        //   value: _assigned,
+                        //   onChanged: (bool value) async {
+                        //     _assigned = value;
+                        //     setState(() {});
+                        //   },
+                        // ),
+
+
                   ],
                 ),
                 SizedBox(height: 7.0,),
@@ -478,48 +512,51 @@ class _AddNewProjectState extends State<AddNewProject> {
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                 ),),
-                trailing: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
-                  onPressed: () async{
-                    if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
-                      Alert(
-                        context: context,
-                        title: "Warning!",
-                        desc: "Invalid privileges",
-                        image: Image.asset("images/fail.png"),
-                      ).show();
-                    }else
-                      Alert(
-                        context: context,
-                        type: AlertType.warning,
-                        title: "Warning Message",
-                        desc: "Are you sure?",
-                        buttons: [
-                          DialogButton(
-                            child: Text(
-                              "Cancel",
-                              style: TextStyle(color: Colors.black, fontSize: 20),
+                trailing: Visibility(
+                  visible: showButtons==true?false:true,
+                  child: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
+                    onPressed: () async{
+                      if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
+                        Alert(
+                          context: context,
+                          title: "Warning!",
+                          desc: "Invalid privileges",
+                          image: Image.asset("images/fail.png"),
+                        ).show();
+                      }else
+                        Alert(
+                          context: context,
+                          type: AlertType.warning,
+                          title: "Warning Message",
+                          desc: "Are you sure?",
+                          buttons: [
+                            DialogButton(
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(color: Colors.black, fontSize: 20),
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                              color: Color.fromRGBO(0, 179, 134, 1.0),
                             ),
-                            onPressed: () => Navigator.pop(context),
-                            color: Color.fromRGBO(0, 179, 134, 1.0),
-                          ),
-                          DialogButton(
-                            child: Text(
-                              "Yes",
-                              style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                            DialogButton(
+                              child: Text(
+                                "Yes",
+                                style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                              ),
+                              onPressed: () async{
+                                await _deleteProjectSkill (_projectSkills[index].projDoc);
+                                _refreshSkillList(widget.projectId);
+                                Navigator.pop(context);
+                              },
+                              gradient: LinearGradient(colors: [
+                                Color.fromRGBO(116, 116, 191, 1.0),
+                                Color.fromRGBO(52, 138, 199, 1.0)
+                              ]),
                             ),
-                            onPressed: () async{
-                              await _deleteProjectSkill (_projectSkills[index].projDoc);
-                              _refreshSkillList(widget.projectId);
-                              Navigator.pop(context);
-                            },
-                            gradient: LinearGradient(colors: [
-                              Color.fromRGBO(116, 116, 191, 1.0),
-                              Color.fromRGBO(52, 138, 199, 1.0)
-                            ]),
-                          ),
-                        ],
-                      ).show();
-                  },
+                          ],
+                        ).show();
+                    },
+                  ),
                 ),
               ),
               Divider(
@@ -532,7 +569,6 @@ class _AddNewProjectState extends State<AddNewProject> {
       ),
     ),
   );
-
   // This function is sub part of building different page's components
   _list2() => Container(
     margin: EdgeInsets.only(top: 15.0),
@@ -555,48 +591,51 @@ class _AddNewProjectState extends State<AddNewProject> {
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                 ),),
-                trailing: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
-                  onPressed: () async{
-                    if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
-                      Alert(
-                        context: context,
-                        title: "Warning!",
-                        desc: "Invalid privileges",
-                        image: Image.asset("images/fail.png"),
-                      ).show();
-                    }else
-                      Alert(
-                        context: context,
-                        type: AlertType.warning,
-                        title: "Warning Message",
-                        desc: "Are you sure?",
-                        buttons: [
-                          DialogButton(
-                            child: Text(
-                              "Cancel",
-                              style: TextStyle(color: Colors.black, fontSize: 20),
+                trailing: Visibility(
+                  visible: showButtons==true?false:true,
+                  child: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
+                    onPressed: () async{
+                      if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
+                        Alert(
+                          context: context,
+                          title: "Warning!",
+                          desc: "Invalid privileges",
+                          image: Image.asset("images/fail.png"),
+                        ).show();
+                      }else
+                        Alert(
+                          context: context,
+                          type: AlertType.warning,
+                          title: "Warning Message",
+                          desc: "Are you sure?",
+                          buttons: [
+                            DialogButton(
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(color: Colors.black, fontSize: 20),
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                              color: Color.fromRGBO(0, 179, 134, 1.0),
                             ),
-                            onPressed: () => Navigator.pop(context),
-                            color: Color.fromRGBO(0, 179, 134, 1.0),
-                          ),
-                          DialogButton(
-                            child: Text(
-                              "Yes",
-                              style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                            DialogButton(
+                              child: Text(
+                                "Yes",
+                                style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                              ),
+                              onPressed: () async{
+                                await _deleteProjectLangDocument(_projectLangs[index].projDoc);
+                                _refreshLangList(widget.projectId);
+                                Navigator.pop(context);
+                              },
+                              gradient: LinearGradient(colors: [
+                                Color.fromRGBO(116, 116, 191, 1.0),
+                                Color.fromRGBO(52, 138, 199, 1.0)
+                              ]),
                             ),
-                            onPressed: () async{
-                              await _deleteProjectLangDocument(_projectLangs[index].projDoc);
-                              _refreshLangList(widget.projectId);
-                              Navigator.pop(context);
-                            },
-                            gradient: LinearGradient(colors: [
-                              Color.fromRGBO(116, 116, 191, 1.0),
-                              Color.fromRGBO(52, 138, 199, 1.0)
-                            ]),
-                          ),
-                        ],
-                      ).show();
-                  },
+                          ],
+                        ).show();
+                    },
+                  ),
                 ),
               ),
               Divider(
@@ -836,6 +875,7 @@ class _AddNewProjectState extends State<AddNewProject> {
             desc: "The project has been assigned successfully",
             image: Image.asset("images/success.png"),
           ).show();
+          Navigator.pushNamed(context, '/showProjects');
         }
       } else {
         Alert(
@@ -846,7 +886,11 @@ class _AddNewProjectState extends State<AddNewProject> {
         ).show();
         _assigned = false;
       }
-      setState(() {});
     }
+    setState(() {});
+  }
+
+  _showHideButtons () async{
+    return showButtons = await checkStudentExist(globals.userId);
   }
 }

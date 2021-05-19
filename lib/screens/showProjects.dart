@@ -44,6 +44,7 @@ class _ShowProjectsState extends State<ShowProjects> {
   bool langsFound = false;
   bool visible = false;
   bool isSwitched = false;
+  static bool showButtons = false;
 
   final _ctrlSkillId = TextEditingController();
   final _ctrlLangId = TextEditingController();
@@ -53,6 +54,7 @@ class _ShowProjectsState extends State<ShowProjects> {
   void initState(){
     super.initState();
     setState(() {  });
+    _showHideButtons();
     skillsFound = false;
     langsFound = false;
     _queryProjects.clear();
@@ -67,22 +69,28 @@ class _ShowProjectsState extends State<ShowProjects> {
   static const TextStyle optionStyle =
   TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
   int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
+  static List<Widget> _widgetOptions = <Widget>[
     Text(
       'Index 0: Home',
       style: optionStyle,
     ),
-    Text(
-      'Index 1: My Project',
-      style: optionStyle,
+    Visibility(
+      visible: showButtons,
+      child: Text(
+        'Index 1: My Project',
+        style: optionStyle,
+      ),
     ),
     Text(
       'Index 2: Chat',
       style: optionStyle,
     ),
-    Text(
-      'Index 3: New Project',
-      style: optionStyle,
+    Visibility(
+      visible: !showButtons,
+      child: Text(
+        'Index 3: New Project',
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)
+      ),
     ),
   ];
 
@@ -97,12 +105,14 @@ class _ShowProjectsState extends State<ShowProjects> {
       _selectedIndex = 0;
     }else
     if (_selectedIndex == 3){
-      await _awaitCallingProjectDtls(null, 1);
-      _selectedIndex = 0;
+      if (!showButtons)
+        await _awaitCallingProjectDtls(null, 1);
+    _selectedIndex = 0;
     }
 
     else if (_selectedIndex == 1) {
-      callMyProject();
+      if (showButtons==true)
+        callMyProject();
       _selectedIndex = 0;
     }
     setState(() {});
@@ -365,31 +375,37 @@ class _ShowProjectsState extends State<ShowProjects> {
                   ),
                 ),
                 SizedBox(height: 5.0,),
-                ListTile(
-                  leading: Icon(Icons.assignment,
-                    color: Colors.blue[900],),
-                  title: Text('Add New Project'),
-                  onTap: () async{
-                    await _awaitCallingProjectDtls(null, 1);
-                  },
+                Visibility(
+                  visible: showButtons==true?false:true,
+                  child: ListTile(
+                    leading: Icon(Icons.assignment,
+                      color: Colors.blue[900],),
+                    title: Text('Add New Project'),
+                    onTap: () async{
+                      await _awaitCallingProjectDtls(null, 1);
+                    },
+                  ),
                 ),
                 SizedBox(height: 5.0,),
-                ListTile(
-                  leading: Icon(Icons.list,
-                    color: Colors.blue[900],),
-                  title: Text('Upload Projects'),
-                  onTap: () async{
-                    print(globals.admin);
-                    if ((await checkStaffDocument(globals.userId)) || (globals.admin))
-                      Navigator.pushNamed(context, '/uploadProjects');
-                    else
-                      Alert(
-                        context: context,
-                        title: "Error!",
-                        desc: "You do not have a privilege.. !",
-                        image: Image.asset("images/fail.png"),
-                      ).show();
-                  },
+                Visibility(
+                  visible: showButtons==true?false:true,
+                  child: ListTile(
+                    leading: Icon(Icons.list,
+                      color: Colors.blue[900],),
+                    title: Text('Upload Projects'),
+                    onTap: () async{
+                      print(globals.admin);
+                      if ((await checkStaffDocument(globals.userId)) || (globals.admin))
+                        Navigator.pushNamed(context, '/uploadProjects');
+                      else
+                        Alert(
+                          context: context,
+                          title: "Error!",
+                          desc: "You do not have a privilege.. !",
+                          image: Image.asset("images/fail.png"),
+                        ).show();
+                    },
+                  ),
                 ),
                 SizedBox(height: 2.0,),
                 ListTile(
@@ -401,13 +417,16 @@ class _ShowProjectsState extends State<ShowProjects> {
                   },
                 ),
                 SizedBox(height: 2.0,),
-                ListTile(
-                    leading: Icon(Icons.assignment_turned_in,
-                      color: Colors.deepOrange,),
-                    title: Text('My Project'),
-                    onTap: () {
-                      callMyProject();
-                    }
+                Visibility(
+                  visible: showButtons==true?true:false,
+                  child: ListTile(
+                      leading: Icon(Icons.assignment_turned_in,
+                        color: Colors.deepOrange,),
+                      title: Text('My Project'),
+                      onTap: () {
+                        callMyProject();
+                      }
+                  ),
                 ),
                 SizedBox(height: 2.0,),
                 Container(
@@ -544,22 +563,29 @@ class _ShowProjectsState extends State<ShowProjects> {
       ),
 
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             title: Text("Home"),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment_turned_in),
-            title: Text("My Project"),
+            icon: Visibility(
+              visible: showButtons,
+                child: Icon(Icons.assignment_turned_in)
+            ),
+            title: Text("My Project",
+            style: TextStyle(color: showButtons==false?Colors.white:Colors.red[200]),),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
             title: Text("Chat"),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            title: Text("New Project"),
+            icon: Visibility(
+              visible: !showButtons,
+                child: Icon(Icons.add_circle)),
+            title: Text("New Project",
+            style: TextStyle(color: showButtons==false? Colors.red[200]:Colors.white),),
           ),
         ],
         currentIndex: _selectedIndex,
@@ -907,5 +933,9 @@ class _ShowProjectsState extends State<ShowProjects> {
         _selectedIndex = 0;
       }
     }
+  }
+
+  _showHideButtons () async{
+    return showButtons = await checkStudentExist(globals.userId);
   }
 }
