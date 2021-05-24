@@ -346,9 +346,9 @@ class _AdminMenuState extends State<AdminMenu> {
                               onPressed: () async {
                                 if (_textFieldAssignedController.text.length > 0) {
                                   await assignProject(
-                                      _projects[index].documentId, int.parse(
-                                      _textFieldAssignedController.text));
-                                  await updateProjectAvailable(_projects[index].documentId, false);
+                                      _projects[index].documentId,
+                                      int.parse(_textFieldAssignedController.text),
+                                      _projects[index].noOfStudents);
 
                                   setState(() {
 
@@ -450,26 +450,37 @@ class _AdminMenuState extends State<AdminMenu> {
   }
 
   // Admin can assign a project to a particular student by using student id
-  Future<void> assignProject (String projId, int studId) async{
+  Future<void> assignProject (String projId, int studId, int noOfStud) async{
     bool suc = false;
+    int stdCount = 0;
     if (await checkStudentExist(studId)){
-      if (await isStudentHasProject(studId)){
-        await assignProjectToStudent(studId, projId);
-        await updateProjectAvailable(projId, false);
-        suc = true;
-        Alert(
-          context: context,
-          title: "Success!",
-          desc: "The project assigned to the student successfully",
-          image: Image.asset("images/success.png"),
-        ).show();
-      }else
-        Alert(
-          context: context,
-          title: "Failed!",
-          desc: "The student already has a project",
-          image: Image.asset("images/fail.png"),
-        ).show();
+      if (await isStudentHasProject(studId)) {
+        stdCount = await getHowManyStudentAssigned(projId);
+        if (stdCount < noOfStud) {
+          suc = true;
+          assignProjectToStudent(studId, projId);
+
+          if (await getHowManyStudentAssigned(projId) == noOfStud )
+            await updateProjectAvailable(projId, false);
+
+          Alert(
+            context: context,
+            title: "Success!",
+            desc: "The project assigned to the student successfully",
+            image: Image.asset("images/success.png"),
+          ).show();
+
+          stdCount = await getHowManyStudentAssigned(projId);
+          if (stdCount == noOfStud)
+            await updateProjectAvailable(projId, false);
+        } else
+          Alert(
+            context: context,
+            title: "Failed!",
+            desc: "The project had been choosen!!..",
+            image: Image.asset("images/fail.png"),
+          ).show();
+      }
     }else
       Alert(
         context: context,
@@ -482,7 +493,6 @@ class _AdminMenuState extends State<AdminMenu> {
       Navigator.pop(context);
       Navigator.pop(context);
     }
-
   }
 
   // Function to call project details
@@ -498,7 +508,16 @@ class _AdminMenuState extends State<AdminMenu> {
     ));
 
     bool vis = await checkStudentExist(globals.userId);
-    bool asg = await checkProjectSelected(projDoc);
+    bool asg = false;
+
+    DocumentSnapshot ds = await Firestore.instance.collection('project').document(projDoc).get();
+    if (ds != null){
+      int howManyStudent = ds.data['noOfStudents'];
+
+      if (howManyStudent > await getHowManyStudentAssigned(projDoc))
+        asg = true;
+    }
+
     if (whoCalled == 0){
       final result = await Navigator.push(
           context,

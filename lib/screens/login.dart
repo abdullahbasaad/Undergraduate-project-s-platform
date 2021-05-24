@@ -112,10 +112,10 @@ class _LoginState extends State<Login> {
                                     .hasMatch(value)) {
                                   return 'Please enter a valid email address';
                                 }
-
                                 return null;
                               },
                               onSaved: (String value) {
+                                value = value.trim();
                                 _user.email = value.toLowerCase();
                               },
                               style: kTextFieldStyle,
@@ -202,7 +202,9 @@ class _LoginState extends State<Login> {
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
-                                fontFamily: 'Montserrat'
+                                fontFamily: 'Montserrat',
+                                letterSpacing: 1.0,
+                                fontSize: 16.0,
                             ),
                           ),
                         ),

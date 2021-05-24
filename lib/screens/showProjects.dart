@@ -786,7 +786,15 @@ class _ShowProjectsState extends State<ShowProjects> {
         ));
 
     bool vis = await checkStudentExist(globals.userId);
-    bool asg = await checkProjectSelected(projId);
+    bool asg = false;
+
+    DocumentSnapshot ds = await Firestore.instance.collection('project').document(projId).get();
+    if (ds != null){
+      int howManyStudent = ds.data['noOfStudents'];
+      if (howManyStudent > await getHowManyStudentAssigned(projId))
+        asg = true;
+    }
+
     if (whoCalled == 0){
       final result = await Navigator.push(
           context,
@@ -872,10 +880,7 @@ class _ShowProjectsState extends State<ShowProjects> {
     }
 
     if ((_categoryList.indexOf(_selectedCategory) != 0) && ((_selectedLang != _langsList[0] || _selectedSkill != _skillsList[0]))){
-      print(_projects.length);
-      print(_selectedCategory);
       for (Projects prj in _projects) {
-        print(prj.supervisorName);
         if (prj.category == _selectedCategory)
           _tempProjects.add(prj);
         }

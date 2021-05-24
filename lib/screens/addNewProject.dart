@@ -324,6 +324,7 @@ class _AddNewProjectState extends State<AddNewProject> {
                         textAlignVertical: TextAlignVertical.top,
                         inputFormatters: [new WhitelistingTextInputFormatter(RegExp("[0-9]")),],
                         controller: _ctrlNoOfStudents,
+                        readOnly: _checkEditabbleFields(),
                         style: kTextFormFieldStyleAddProject,
                         textAlign: TextAlign.center,
                         decoration: InputDecoration(
@@ -349,11 +350,13 @@ class _AddNewProjectState extends State<AddNewProject> {
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.green, width: 1.0),
                             borderRadius: BorderRadius.circular(15),
+
                           ),
                           child: Padding(
                             padding: EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
                             child: DropdownButton<String>(
                               value: _project.category,
+
                               icon: Icon(Icons.arrow_drop_down),
                               iconSize: 30,
                               elevation: 16,
@@ -362,7 +365,8 @@ class _AddNewProjectState extends State<AddNewProject> {
                               underline: SizedBox(),
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _project.category = newValue;
+                                  if (!_checkEditabbleFields())
+                                    _project.category = newValue;
                                 });
                               },
                               items: _categoryList.map((valueItem) {
@@ -644,7 +648,7 @@ class _AddNewProjectState extends State<AddNewProject> {
   _list3() => Visibility(
     visible: showButtons,
     child: Visibility(
-      visible: !widget.assigned,
+      visible: widget.assigned,
       child: Container(
         width: 290.0,
         height: 50.0,
@@ -901,16 +905,18 @@ class _AddNewProjectState extends State<AddNewProject> {
               image: Image.asset("images/fail.png"),
             ).show();
             _assigned = false;
-        } else {
+        }else{
           await assignProjectToStudent(globals.userId, _project.documentId);
-          await updateProjectAvailable(_project.documentId, false);
-          Alert(
-            context: context,
-            title: "Success!",
-            desc: "The project has been assigned successfully",
-            image: Image.asset("images/success.png"),
-          ).show();
-          Navigator.pushNamed(context, '/showProjects');
+          if (await getHowManyStudentAssigned(_project.documentId) == _project.noOfStudents){
+            await updateProjectAvailable(_project.documentId, false);
+            Alert(
+              context: context,
+              title: "Success!",
+              desc: "The project has been assigned successfully",
+              image: Image.asset("images/success.png"),
+            ).show();
+            Navigator.pushNamed(context, '/showProjects');
+          }
         }
       } else {
         Alert(

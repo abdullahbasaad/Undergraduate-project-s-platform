@@ -89,12 +89,14 @@ Future<QuerySnapshot> returnStudentAssignedId(String projId) async{
 // Get a student assigned to (id - name)
 Future<String> getStudentAssignedName(String projId) async{
   int stdId;
-  String stdName;
+  String stdName='';
   QuerySnapshot qShot = await returnStudentAssignedId(projId);
   if (qShot.documents.length > 0) {
-    stdId = qShot.documents[0].data['studentId'];
-    stdName = await getUserName(stdId);
-    return stdId.toString()+' - '+stdName;
+    for (int i=0; i < qShot.documents.length; i++){
+      stdId = qShot.documents[i].data['studentId'];
+      stdName = stdName +' , '+ stdId.toString()+' - '+await getUserName(stdId);
+    }
+    return stdName;
   }else
     return null;
 }
@@ -597,6 +599,7 @@ Future<QuerySnapshot> getStudentDocument(int stdId) async{
 assignProjectToStudent(int stdId, String projId) async{
   String stdDoc;
   QuerySnapshot qs = await getStudentDocument(stdId);
+
   if (qs.documents.length > 0){
     stdDoc = qs.documents[0].documentID;
 
