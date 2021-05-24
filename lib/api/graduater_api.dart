@@ -69,6 +69,17 @@ Future<String> getUserName(int usrId) async{
     return null;
 }
 
+// Get user name for a specific user
+Future<int> getUserId(String usrNm) async{
+  QuerySnapshot qShot = await Firestore.instance.collection('user').where('userName', isEqualTo: usrNm)
+      .getDocuments();
+
+  if (qShot.documents.length > 0)
+    return qShot.documents[0].data['userId'];
+  else
+    return null;
+}
+
 // Get all documents for a specific user from user's collection
 Future<QuerySnapshot> returnStudentAssignedId(String projId) async{
   return Firestore.instance.collection('student').where('projectId', isEqualTo: projId)
@@ -87,7 +98,6 @@ Future<String> getStudentAssignedName(String projId) async{
   }else
     return null;
 }
-
 
 // Get all documents for a specific user from user's collection
 Future<QuerySnapshot> getUserDocument(int usrId) async{
@@ -144,6 +154,11 @@ Future<QuerySnapshot> getProjectSupervisorDocuments(String sprName) {
 // Return all available projects collection
 Future<QuerySnapshot> getProjectAvailableDocuments(bool avlbl) {
   return Firestore.instance.collection('project').where('available', isEqualTo: avlbl).getDocuments();
+}
+
+// Return all particular categories collections
+Future<QuerySnapshot> getProjectCategoryDocuments(String categ) {
+  return Firestore.instance.collection('project').where('category', isEqualTo: categ).getDocuments();
 }
 
 // Return all documents for a skill's collection
@@ -243,13 +258,15 @@ Future<Projects> returnProjectSkillQueryDocuments(String docId) async {
     if (projDoc.data.length > 0)
       return Projects(
           projDoc.documentID,
+          projDoc.data['pId'],
           projDoc.data['projectTitle'],
           projDoc.data['projectDesc'],
           projDoc.data['proposedBy'],
           projDoc.data['supervisor'],
           projDoc.data['noOfStudents'],
           projDoc.data['supervisorName'],
-          projDoc.data['available']
+          projDoc.data['available'],
+          projDoc.data['category'],
       );
     else
       return null;
@@ -265,14 +282,16 @@ Future<Projects> returnProjectLangQueryDocuments(String docId) async {
 
   if (projDoc.data.length > 0){
     return Projects(
-        projDoc.documentID,
-        projDoc.data['projectTitle'],
-        projDoc.data['projectDesc'],
-        projDoc.data['proposedBy'],
-        projDoc.data['supervisor'],
-        projDoc.data['noOfStudents'],
-        projDoc.data['supervisorName'],
-        projDoc.data['available']);}
+      projDoc.documentID,
+      projDoc.data['pId'],
+      projDoc.data['projectTitle'],
+      projDoc.data['projectDesc'],
+      projDoc.data['proposedBy'],
+      projDoc.data['supervisor'],
+      projDoc.data['noOfStudents'],
+      projDoc.data['supervisorName'],
+      projDoc.data['available'],
+      projDoc.data['category']);}
   else
     return null;
 }
@@ -422,7 +441,7 @@ Future<bool> checkSkillExist(String skl) async  {
   else
     return false;
 }
-//////////////////////////////////////////////////////////////////////////////////////
+
 Future<bool> checkLangExist(String lng) async  {
   QuerySnapshot qShot = await Firestore.instance.collection('projectLanguages').where('langDesc', isEqualTo: lng )
       .getDocuments();
@@ -467,6 +486,7 @@ addProjectSkill(String projDoc, String skillDesc) async{
 addProject(Projects prj, String docId) async{
   if (docId != null)
     await Firestore.instance.collection("project").document(docId).setData({
+      'pId': prj.pId,
       'noOfStudents': prj.noOfStudents,
       'projectDesc': prj.projectDesc,
       'projectTitle': prj.projectTitle,
@@ -474,6 +494,7 @@ addProject(Projects prj, String docId) async{
       'supervisor': prj.supervisor,
       'supervisorName' : prj.supervisorName,
       'available' : prj.available,
+      'category': prj.category,
       'createdDt': DateTime.now()});
   else
     Firestore.instance.collection("project").document()
@@ -496,7 +517,9 @@ Future<void> updateProjectDocument (Projects prj, String doc) async{
             'projectDesc': prj.projectDesc,
             'projectTitle': prj.projectTitle,
             'proposedBy': prj.proposedBy,
-            'supervisor': prj.supervisor
+            'supervisor': prj.supervisor,
+            'category': prj.category,
+            'supervisorName': prj.supervisorName
           });
 }
 

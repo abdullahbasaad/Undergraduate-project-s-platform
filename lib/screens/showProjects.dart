@@ -7,10 +7,8 @@ import 'package:graduater/models/project_languages.dart';
 import 'package:graduater/models/project_skills.dart';
 import 'package:graduater/models/projects.dart';
 import 'package:graduater/models/skills.dart';
-import 'package:graduater/models/staff.dart';
 import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:graduater/components/screenTitleWidget.dart';
-import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:graduater/models/globals.dart' as globals;
 import 'package:flutter/services.dart';
 import 'package:graduater/screens/showRooms.dart';
@@ -28,13 +26,17 @@ class _ShowProjectsState extends State<ShowProjects> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController _semicircleController = ScrollController();
   List<Projects> _projects = [];
+  List<Projects> _tempProjects = [];
   List<String> _queryProjects = [];
   List<Skills> _skills = [];
-  List<Staff> _staff = [];
   List<ProjectSkills> _projectSkills = [];
   List<ProjectLanguages> _projectLangs = [];
   List<String> _skillsList =['Select a skill...'];
   List<String> _staffList =['Select a supervisor...'];
+
+  List<String> _categoryList =['Select a category...'];
+  String _selectedCategory;
+
   String _selectedSkill;
   String _selectedStaff;
   List<ProgrammingLanguages> _langs = [];
@@ -45,9 +47,6 @@ class _ShowProjectsState extends State<ShowProjects> {
   bool visible = false;
   bool isSwitched = false;
   static bool showButtons = false;
-
-  final _ctrlSkillId = TextEditingController();
-  final _ctrlLangId = TextEditingController();
   String str;
 
   @override
@@ -61,11 +60,15 @@ class _ShowProjectsState extends State<ShowProjects> {
     _projectSkills.clear();
     _projectLangs.clear();
     _projects.clear();
+    _categoryList.clear();
+    _tempProjects.clear();
     _getAllProjects();
     _refreshSkillList();
     _refreshLangList();
     _refreshStaffList();
+    _getCategoryList();
   }
+
   static const TextStyle optionStyle =
   TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
   int _selectedIndex = 0;
@@ -131,7 +134,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                 tooltip: 'Back Admin menu',
                 iconSize: 24.0,
                 color: Colors.white,
-                highlightColor: Colors.white70,
+                highlightColor: Colors.white,
                 onPressed: () async{
                   Navigator.pushNamed(context, '/adminMenu');
                 }),
@@ -179,283 +182,325 @@ class _ShowProjectsState extends State<ShowProjects> {
             ),
             SizedBox(height: 5.0,),
             Column(
-              children: [
-                Container(
-                  height: 35.0,
-                  margin: EdgeInsets.all(5.0),
-                  color: Colors.yellow,
-                  child:  FutureBuilder<String>(
-                    future: _getBannerInfo(), // a previously-obtained Future<String> or null
-                    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                      if (snapshot.hasData) {
-                        return Center(
-                          child: Text(snapshot.data,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.0,
-                            ),),
-                        );
-                      }else
-                        return Container();
-                    },
-                  ),
-                ),
-                SizedBox(height: 20.0,),
-                DropdownButton<String>(
-                  value: _selectedLang,
-                  icon: Icon(Icons.arrow_downward),
-                  iconSize: 20,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.deepPurple),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.deepPurpleAccent,
-                  ),
-                  onChanged: (String newValue) {
-                    setState(() {
-                      _selectedLang = newValue;
-                    });
-                  },
-                  items: _langsList
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 5.0,),
-                DropdownButton<String>(
-                  value: _selectedSkill,
-                  icon: Icon(Icons.arrow_downward),
-                  iconSize: 20,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.deepPurple),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.deepPurpleAccent,
-                  ),
-                  onChanged: (String newValue) {
-                    setState(() {
-                      _selectedSkill = newValue;
-                    });
-                  },
-                  items: _skillsList
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 10.0,),
-                DropdownButton<String>(
-                  value: _selectedStaff,
-                  icon: Icon(Icons.arrow_downward),
-                  iconSize: 20,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.deepPurple),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.deepPurpleAccent,
-                  ),
-                  onChanged: (String newValue) {
-                    setState(() {
-                      _selectedStaff = newValue;
-                    });
-                  },
-                  items: _staffList
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 10.0,),
-                Container(
-                  margin: EdgeInsets.fromLTRB(30.0, 20.0, 0, 30.0),
-                  child: Row(
-                    children: [
-                      Text('Available ',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15.0,
-                        ),
-                      ),
-                      Switch(
-                        value: isSwitched,
-                        onChanged: (value) {
-                          setState(() {
-                            isSwitched = value;
-                          });
-                        },
-                        activeTrackColor: Colors.yellow,
-                        activeColor: Colors.orangeAccent,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 5.0,),
-                Container(
-                  height: 40.0,
-                  margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,20.0),
-                  child: Material(
-                    borderRadius: BorderRadius.circular(20.0),
-                    shadowColor: Colors.blueGrey,
-                    color: Colors.blue,
-                    child: GestureDetector(
-                      onTap: () async{
-                        _queryProjects.clear();
-                        if (_skillsList.indexOf(_selectedSkill) != 0)
-                          await _refreshQuerySkillList(_selectedSkill);
-
-                        if (_langsList.indexOf(_selectedLang) != 0)
-                          await _refreshQuerylangList(_selectedLang);
-
-                        if ((!isSwitched) && (_skillsList.indexOf(_selectedSkill) == 0) && (_langsList.indexOf(_selectedLang) == 0) && (_staffList.indexOf(_selectedStaff) == 0))
-                          _getAllProjects();
-
-                        _projectsQuery();
-                        Navigator.of(context).pop();
-                      },
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.search,
-                              color: Colors.pink,
-                              size: 24.0,
-                            ),
-                            SizedBox(width: 10.0,),
-                            Text(
-                              'SEARCH',
+                children: [
+                  Container(
+                    height: 35.0,
+                    margin: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 30.0),
+                    color: Colors.yellow,
+                    child:  FutureBuilder<String>(
+                      future: _getBannerInfo(), // a previously-obtained Future<String> or null
+                      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                        if (snapshot.hasData) {
+                          return Center(
+                            child: Text(snapshot.data,
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontFamily: 'Montserrat'
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14.0,
+                              ),),
+                          );
+                        }else
+                          return Container();
+                      },
                     ),
                   ),
-                ),
-                SizedBox(height: 5.0,),
-                Container(
-                  height: 40.0,
-                  margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,20.0),
-                  child: Material(
-                    borderRadius: BorderRadius.circular(20.0),
-                    shadowColor: Colors.blueGrey,
-                    color: Colors.blue[900],
-                    child: GestureDetector(
-                      onTap: () async{
-                        _selectedStaff = _staffList[0];
-                        _selectedSkill = _skillsList[0];
-                        _selectedLang = _langsList[0];
-                        isSwitched = false;
-                        _getAllProjects();
-                        setState(() { });
-                        Navigator.of(context).pop();
+                  SizedBox(height: 20.0,),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      value: _selectedLang,
+                      icon: Icon(Icons.arrow_drop_down_circle_outlined),
+                      iconSize: 20,
+                      elevation: 16,
+                      style: TextStyle(color: Colors.deepPurple),
+                      underline: Container(
+                        height: 2,
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      onChanged: (String newValue) {
+                        setState(() {
+                          _selectedLang = newValue;
+                        });
                       },
-                      child: Center(
-                        child: Text('REFRESH',
+                      items: _langsList
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  SizedBox(height: 5.0,),
+                  Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      value: _selectedSkill,
+                      icon: Icon(Icons.arrow_drop_down_circle_outlined),
+                      iconSize: 20,
+                      elevation: 16,
+                      style: TextStyle(color: Colors.deepPurple),
+                      underline: Container(
+                        height: 2,
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      onChanged: (String newValue) {
+                        setState(() {
+                          _selectedSkill = newValue;
+                        });
+                      },
+                      items: _skillsList
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  SizedBox(height: 5.0,),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(20.0,0,20.0,0),
+                    child: DropdownButton<String>(
+                      value: _selectedStaff,
+                      icon: Icon(Icons.arrow_drop_down_circle_outlined),
+                      iconSize: 20,
+                      elevation: 16,
+                      style: TextStyle(color: Colors.deepPurple),
+                      underline: Container(
+                        height: 2,
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      onChanged: (String newValue) {
+                        setState(() {
+                          _selectedStaff = newValue;
+                        });
+                      },
+                      items: _staffList
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  SizedBox(height: 5.0,),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(20.0,0,20.0,0),
+                    child: DropdownButton<String>(
+                      value: _selectedCategory,
+                      icon: Icon(Icons.arrow_drop_down_circle_outlined),
+                      iconSize: 20,
+                      elevation: 16,
+                      style: TextStyle(color: Colors.deepPurple),
+                      underline: Container(
+                        height: 2,
+                        color: Colors.deepPurpleAccent,
+                      ),
+                      onChanged: (String newValue) {
+                        setState(() {
+                          _selectedCategory = newValue;
+                        });
+                      },
+                      items: _categoryList
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  SizedBox(height: 5.0,),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(30.0, 20.0, 0, 30.0),
+                    child: Row(
+                      children: [
+                        Text('Available ',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15.0,
+                          ),
+                        ),
+                        Switch(
+                          value: isSwitched,
+                          onChanged: (value) {
+                            setState(() {
+                              isSwitched = value;
+                            });
+                          },
+                          activeTrackColor: Colors.yellow,
+                          activeColor: Colors.orangeAccent,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 5.0,),
+                  Container(
+                    height: 40.0,
+                    margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,20.0),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(20.0),
+                      shadowColor: Colors.blueGrey,
+                      color: Colors.blue,
+                      child: GestureDetector(
+                        onTap: () async{
+                          _queryProjects.clear();
+                          _projectSkills.clear();
+                          _projectLangs.clear();
+
+                          if (_skillsList.indexOf(_selectedSkill) != 0)
+                            await _refreshQuerySkillList(_selectedSkill);
+
+                          if (_langsList.indexOf(_selectedLang) != 0)
+                            await _refreshQuerylangList(_selectedLang);
+
+                          if ((!isSwitched) && (_skillsList.indexOf(_selectedSkill) == 0) && (_langsList.indexOf(_selectedLang) == 0)
+                              && (_staffList.indexOf(_selectedStaff) == 0) && (_categoryList.indexOf(_selectedCategory) == 0))
+                            _getAllProjects();
+
+                          _projectsQuery();
+                          Navigator.of(context).pop();
+                        },
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.search,
+                                color: Colors.pink,
+                                size: 24.0,
+                              ),
+                              SizedBox(width: 10.0,),
+                              Text(
+                                'SEARCH',
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontFamily: 'Montserrat'
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontFamily: 'Montserrat'
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: 5.0,),
-                Visibility(
-                  visible: showButtons==true?false:true,
-                  child: ListTile(
-                    leading: Icon(Icons.assignment,
-                      color: Colors.blue[900],),
-                    title: Text('Add New Project'),
-                    onTap: () async{
-                      await _awaitCallingProjectDtls(null, 1);
-                    },
-                  ),
-                ),
-                SizedBox(height: 5.0,),
-                Visibility(
-                  visible: showButtons==true?false:true,
-                  child: ListTile(
-                    leading: Icon(Icons.list,
-                      color: Colors.blue[900],),
-                    title: Text('Upload Projects'),
-                    onTap: () async{
-                      print(globals.admin);
-                      if ((await checkStaffDocument(globals.userId)) || (globals.admin))
-                        Navigator.pushNamed(context, '/uploadProjects');
-                      else
-                        Alert(
-                          context: context,
-                          title: "Error!",
-                          desc: "You do not have a privilege.. !",
-                          image: Image.asset("images/fail.png"),
-                        ).show();
-                    },
-                  ),
-                ),
-                SizedBox(height: 2.0,),
-                ListTile(
-                  leading: Icon(Icons.chat,
-                      color: Colors.yellow),
-                  title: Text('Chat'),
-                  onTap: () {
-                    Navigator.pushNamed(context, '/showRooms');
-                  },
-                ),
-                SizedBox(height: 2.0,),
-                Visibility(
-                  visible: showButtons==true?true:false,
-                  child: ListTile(
-                      leading: Icon(Icons.assignment_turned_in,
-                        color: Colors.deepOrange,),
-                      title: Text('My Project'),
-                      onTap: () {
-                        callMyProject();
-                      }
-                  ),
-                ),
-                SizedBox(height: 2.0,),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0,vertical: 0.0),
-                  child: Divider(
-                      color: Colors.black),
-                ),
-                ListTile(
-                  leading: Icon(Icons.exit_to_app),
-                  title: Text('Signing-Out'),
-                  onTap:() async{
-                    _scaffoldKey.currentState.showSnackBar(
-                        SnackBar(duration: new Duration(seconds: 2), content:
-                        Row(
-                          children: <Widget>[
-                            new CircularProgressIndicator(),
-                            new Text("  Signing-Out...")
-                          ],
+                  SizedBox(height: 5.0,),
+                  Container(
+                    height: 40.0,
+                    margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,20.0),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(20.0),
+                      shadowColor: Colors.blueGrey,
+                      color: Colors.blue[900],
+                      child: GestureDetector(
+                        onTap: () async{
+                          _selectedStaff = _staffList[0];
+                          _selectedCategory = _categoryList[0];
+                          _selectedSkill = _skillsList[0];
+                          _selectedLang = _langsList[0];
+                          isSwitched = false;
+                          _getAllProjects();
+                          setState(() { });
+                          Navigator.of(context).pop();
+                        },
+                        child: Center(
+                          child: Text('REFRESH',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontFamily: 'Montserrat'
+                                  ),
+                                ),
                         ),
-                        ));
-                    await Future.delayed(const Duration(seconds: 2));
-                    SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-                    AuthNotifier authNotifier = Provider.of<AuthNotifier>(
-                        context, listen: false);
-                    signOut(authNotifier);
-                  },
-                ),
-              ],
-            ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 5.0,),
+                  Visibility(
+                    visible: showButtons==true?false:true,
+                    child: ListTile(
+                      leading: Icon(Icons.assignment,
+                        color: Colors.blue[900],),
+                      title: Text('Add New Project'),
+                      onTap: () async{
+                        await _awaitCallingProjectDtls(null, 1);
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 5.0,),
+                  Visibility(
+                    visible: showButtons==true?false:true,
+                    child: ListTile(
+                      leading: Icon(Icons.list,
+                        color: Colors.blue[900],),
+                      title: Text('Upload Projects'),
+                      onTap: () async{
+                        if ((await checkStaffDocument(globals.userId)) || (globals.admin))
+                          Navigator.pushNamed(context, '/uploadProjects');
+                        else
+                          Alert(
+                            context: context,
+                            title: "Error!",
+                            desc: "You do not have a privilege.. !",
+                            image: Image.asset("images/fail.png"),
+                          ).show();
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 2.0,),
+                  ListTile(
+                    leading: Icon(Icons.chat,
+                        color: Colors.yellow),
+                    title: Text('Chat'),
+                    onTap: () {
+                      Navigator.pushNamed(context, '/showRooms');
+                    },
+                  ),
+                  SizedBox(height: 2.0,),
+                  Visibility(
+                    visible: showButtons==true?true:false,
+                    child: ListTile(
+                        leading: Icon(Icons.assignment_turned_in,
+                          color: Colors.deepOrange,),
+                        title: Text('My Project'),
+                        onTap: () {
+                          callMyProject();
+                        }
+                    ),
+                  ),
+                  SizedBox(height: 2.0,),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0,vertical: 0.0),
+                    child: Divider(
+                        color: Colors.black),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.exit_to_app),
+                    title: Text('Signing-Out'),
+                    onTap:() async{
+                      _scaffoldKey.currentState.showSnackBar(
+                          SnackBar(duration: new Duration(seconds: 2), content:
+                          Row(
+                            children: <Widget>[
+                              new CircularProgressIndicator(),
+                              new Text("  Signing-Out...")
+                            ],
+                          ),
+                          ));
+                      await Future.delayed(const Duration(seconds: 2));
+                      SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                      AuthNotifier authNotifier = Provider.of<AuthNotifier>(
+                          context, listen: false);
+                      signOut(authNotifier);
+                    },
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -490,7 +535,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                                 height: 40,
                                 width: 40,
                                 padding: EdgeInsets.only(top:8),
-                                child: Text((index+1).toString(),
+                                child: Text(_projects[index].pId,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.white,
@@ -521,19 +566,12 @@ class _ShowProjectsState extends State<ShowProjects> {
                       SizedBox(height: 10.0,),
                       Container(
                         padding: EdgeInsets.only(bottom: 10.0),
-                        child:  FutureBuilder<String>(
-                          future: getUserName(_projects[index].supervisor), // a previously-obtained Future<String> or null
-                          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                            if (snapshot.hasData) {
-                              return Text(snapshot.data,
+                        child:  Text(_projects[index].supervisorName,
                                 style: TextStyle(
                                   color: Colors.red,
                                   fontWeight: FontWeight.bold,
-                                ),);
-                            }else
-                              return Container();
-                          },
-                        ),
+                                ),),
+
                       ),
                       SizedBox(height: 10.0,),
                       Container(
@@ -561,7 +599,6 @@ class _ShowProjectsState extends State<ShowProjects> {
           },
         ),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -598,110 +635,6 @@ class _ShowProjectsState extends State<ShowProjects> {
     );
   }
 
-  _form() => Container(
-    //color: Colors.white,
-    padding: EdgeInsets.symmetric(vertical: 5,horizontal: 5.0),
-    child: Form(
-      key: _formKey,
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 250.0,
-              height: 30.0,
-              decoration: ShapeDecoration(
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1.0, style: BorderStyle.solid, color: Colors.black),
-                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                ),
-              ),
-              child: DropdownButton(
-                isExpanded: true,
-                value: _selectedSkill,
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedSkill = newValue;
-                  });
-                },
-                items: _skillsList.map((val){
-                  return new DropdownMenuItem<String>(
-                    value: val,
-                    child: new Text(val,
-                      style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[900]
-                      ),),
-                  );
-                }).toList(),
-              ),
-            ),
-            SizedBox(height: 5.0),
-            Container(
-              width: 250.0,
-              height: 30.0,
-              decoration: ShapeDecoration(
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1.0, style: BorderStyle.solid,color: Colors.black),
-                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                ),
-              ),
-              child: DropdownButton(
-                isExpanded: true,
-                value: _selectedLang,
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedLang = newValue;
-                  });
-                },
-                items: _langsList.map((val){
-                  return new DropdownMenuItem<String>(
-                    value: val,
-                    child: new Text(val,
-                      style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[900]
-                      ),),
-                  );
-                }).toList(),
-              ),
-            ),
-            SizedBox(height: 5.0,),
-            Container(
-              width: 250.0,
-              padding: EdgeInsets.all(5.0),
-              child: Container(
-                height: 40.0,
-                margin: EdgeInsets.fromLTRB(30.0,0.0,30.0,5.0),
-                child: Material(
-                  borderRadius: BorderRadius.circular(20.0),
-                  shadowColor: Colors.blueGrey,
-                  color: Colors.blue,
-                  child: GestureDetector(
-                    onTap: () {
-
-                    },
-                    child: Center(
-                      child: Text(
-                        'RUN',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: 'Montserrat',
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ]
-      ),
-    ),
-  );
-
   Future<String> _getBannerInfo() async { // Firestore DB
     QuerySnapshot avail = await getProjectAvailableDocuments(true);
     int availableCount = avail.documents.length;
@@ -713,6 +646,7 @@ class _ShowProjectsState extends State<ShowProjects> {
 
   _getAllProjects() async{ // Firestore DB
     _projects = await getProjectsList();
+    _projects.sort((a, b) => int.parse(a.pId).compareTo(int.parse(b.pId)));
     setState(() {});
   }
 
@@ -722,14 +656,26 @@ class _ShowProjectsState extends State<ShowProjects> {
     return qShot.documents.map(
             (doc) => Projects(
             doc.documentID,
+            doc.data['pId'],
             doc.data['projectTitle'],
             doc.data['projectDesc'],
             doc.data['proposedBy'],
             doc.data['supervisor'],
             doc.data['noOfStudents'],
             doc.data['supervisorName'],
-            doc.data['available'])
+            doc.data['available'],
+            doc.data['category'])
     ).toList();
+  }
+
+  _getCategoryList() async {
+    QuerySnapshot qShot = await getProjectDocuments();
+
+    for (int row=0; row<qShot.documents.length; row++){
+      _categoryList.add(qShot.documents[row].data['category']);
+    }
+    _selectedCategory = _categoryList[0];
+    _categoryList = _categoryList.toSet().toList();
   }
 
   _getAllSuperProjects(String spr) async{ // Firestore DB
@@ -742,13 +688,15 @@ class _ShowProjectsState extends State<ShowProjects> {
     return qShot.documents.map(
             (doc) => Projects(
             doc.documentID,
+            doc.data['pId'],
             doc.data['projectTitle'],
             doc.data['projectDesc'],
             doc.data['proposedBy'],
             doc.data['supervisor'],
             doc.data['noOfStudents'],
             doc.data['supervisorName'],
-            doc.data['available'])
+            doc.data['available'],
+            doc.data['category'])
     ).toList();
   }
 
@@ -757,18 +705,42 @@ class _ShowProjectsState extends State<ShowProjects> {
     return qShot.documents.map(
             (doc) => Projects(
             doc.documentID,
+            doc.data['pId'],
             doc.data['projectTitle'],
             doc.data['projectDesc'],
             doc.data['proposedBy'],
             doc.data['supervisor'],
             doc.data['noOfStudents'],
             doc.data['supervisorName'],
-            doc.data['available'])
+            doc.data['available'],
+            doc.data['category'])
     ).toList();
   }
 
   _getAllAvailableProjects() async { // Firestore DB
     _projects.addAll(await getProjectsAvailableList());
+    setState(() {});
+  }
+
+  Future<List<Projects>> getProjectsCategoryList(String cat) async {
+    QuerySnapshot qShot = await getProjectCategoryDocuments(cat);
+    return qShot.documents.map(
+            (doc) => Projects(
+            doc.documentID,
+            doc.data['pId'],
+            doc.data['projectTitle'],
+            doc.data['projectDesc'],
+            doc.data['proposedBy'],
+            doc.data['supervisor'],
+            doc.data['noOfStudents'],
+            doc.data['supervisorName'],
+            doc.data['available'],
+            doc.data['category'])
+    ).toList();
+  }
+
+  _getAllCatProjects(String cat) async { // Firestore DB
+    _projects.addAll(await getProjectsCategoryList(cat));
     setState(() {});
   }
 
@@ -779,6 +751,7 @@ class _ShowProjectsState extends State<ShowProjects> {
     });
     _skillsList.addAll(_skills.map((e) => e.skillDesc).toList());
     _selectedSkill = _skillsList[0];
+    _skillsList = _skillsList.toSet().toList();
   }
 
   _refreshStaffList() async{
@@ -787,8 +760,8 @@ class _ShowProjectsState extends State<ShowProjects> {
     for (int row=0; row<qShot.documents.length; row++){
       _staffList.add(qShot.documents[row].data['staffName']);
     }
-
     _selectedStaff = _staffList[0];
+    _staffList = _staffList.toSet().toList();
   }
 
   _refreshLangList() async{
@@ -798,6 +771,7 @@ class _ShowProjectsState extends State<ShowProjects> {
     });
     _langsList.addAll(_langs.map((e) => e.langDesc).toList());
     _selectedLang = _langsList[0];
+    _langsList = _langsList.toSet().toList();
   }
 
   Future<void> _awaitCallingProjectDtls(String projId, int whoCalled) async {
@@ -849,6 +823,7 @@ class _ShowProjectsState extends State<ShowProjects> {
       }
     });
   }
+
   Future<List<ProjectLanguages>> getProjectLangList(String langDesc) async {
     QuerySnapshot qShot = await returnProjectsWithSpecifcLang(langDesc);
 
@@ -873,6 +848,9 @@ class _ShowProjectsState extends State<ShowProjects> {
 
   _projectsQuery() async{
     _projects.clear();
+    _queryProjects.clear();
+    _tempProjects.clear();
+
     if (_selectedSkill != _skillsList[0]) {
       if (skillsFound){
         for (ProjectSkills prSk in _projectSkills) {
@@ -893,12 +871,30 @@ class _ShowProjectsState extends State<ShowProjects> {
       }
     }
 
+    if ((_categoryList.indexOf(_selectedCategory) != 0) && ((_selectedLang != _langsList[0] || _selectedSkill != _skillsList[0]))){
+      print(_projects.length);
+      print(_selectedCategory);
+      for (Projects prj in _projects) {
+        print(prj.supervisorName);
+        if (prj.category == _selectedCategory)
+          _tempProjects.add(prj);
+        }
+      _projects.clear();
+      _projects.addAll(_tempProjects);
+    }
+
     if (_selectedStaff != _staffList[0]){
       _getAllSuperProjects(_selectedStaff);
     }
 
-    if ((! isSwitched) && (_selectedSkill == _skillsList[0]) && (_selectedLang == _langsList[0]) && (_selectedStaff == _staffList[0])){
+    if ((! isSwitched) && (_selectedSkill == _skillsList[0]) && (_selectedLang == _langsList[0])
+        && (_selectedStaff == _staffList[0]) && (_selectedCategory == _categoryList[0])){
       _getAllProjects();
+    }
+
+    if ((! isSwitched) && (_selectedSkill == _skillsList[0]) && (_selectedLang == _langsList[0])
+        && (_categoryList.indexOf(_selectedCategory) != 0)){
+        await _getAllCatProjects(_selectedCategory);
     }
 
     if (isSwitched){

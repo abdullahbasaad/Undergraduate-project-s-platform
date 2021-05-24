@@ -2,19 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:graduater/models/user.dart';
 
 class Staff extends User {
-
+  String documentId;
   int staffId;
   String staffName;
   String officeNo;
   String address;
 
-  Staff();
-
-  Staff.fromMap(Map<String, dynamic> data){
-    staffId = data[staffId];
-    staffName = data['staffName'];
-    officeNo = data['officeNo'];
-    address = data['address'];
-  }
+  Staff(this.documentId, this.staffId, this.staffName, this.officeNo, this.address);
 
 }

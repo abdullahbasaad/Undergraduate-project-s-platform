@@ -30,8 +30,8 @@ class AddNewProject extends StatefulWidget {
 class _AddNewProjectState extends State<AddNewProject> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  Projects _project = Projects(null,null,null,null,null,null,null,null);
-  List<Projects> _projects = [];
+  Projects _project = Projects(null,null,null,null,null,null,null,null,null,null);
+
   List<ProjectSkills> _projectSkills = [];
   List<ProjectLanguages> _projectLangs = [];
 
@@ -42,6 +42,7 @@ class _AddNewProjectState extends State<AddNewProject> {
   int docProjLangLength = 0;
   int noOfStd = 0;
   bool showButtons = false;
+  List<String> _categoryList =[];
 
   final _ctrlProjectTitle = TextEditingController();
   final _ctrlProjectDesc = TextEditingController();
@@ -50,6 +51,9 @@ class _AddNewProjectState extends State<AddNewProject> {
   final _ctrlNoOfStudents = TextEditingController();
   final _ctrlProposedName = TextEditingController();
   final _ctrlSuperviseddName = TextEditingController();
+  final _ctrlCategory = TextEditingController();
+
+
 
   // This function for initiating page
   @override
@@ -60,6 +64,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     _showHideButtons();
     _projectSkills.clear();
     _projectLangs.clear();
+    _getCategoryList();
 
     if (widget.projectId != null){
       _getProjectDts();
@@ -115,6 +120,7 @@ class _AddNewProjectState extends State<AddNewProject> {
             _form(),
             _list(),
             _list2(),
+            _list3(),
           ],
         ),
       ),
@@ -237,7 +243,7 @@ class _AddNewProjectState extends State<AddNewProject> {
                   ],
                 ),
                 SizedBox(height: 5.0,),
-                Text ('Supervisor',
+                Text (' Supervisor ',
                   style: TextStyle(
                     color: Colors.white,
                     backgroundColor: Colors.black,
@@ -304,7 +310,7 @@ class _AddNewProjectState extends State<AddNewProject> {
                   ],
                 ),
                 SizedBox(height: 5.0),
-                Text ('Number Of Students',
+                Text (' Number Of Students ',
                   style: TextStyle(
                     color: Colors.white,
                     backgroundColor: Colors.black,
@@ -333,57 +339,46 @@ class _AddNewProjectState extends State<AddNewProject> {
                         validator: (val) => (val.length==0? 'Field is required': null),
                       ),
                     ),
-                    SizedBox(width: 50.0,),
-                    Visibility(
-                      visible: !widget.assigned,
-                      child: Container(
-                        width: 245.0,
-                        height: 50.0,
-                        child: Material(
-                          borderRadius: BorderRadius.circular(5.0),
-                          shadowColor: Colors.blueGrey,
-                          color: Colors.blue,
-                          child: GestureDetector(
-                            onTap: () async{
-                              _assigned = true;
-                              _checkAssigneeProject();
-                            },
-                            child: Center(
-                              child: Text(
-                                'ASSIGN IT TO ME..',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontFamily: 'Montserrat'
-                                ),
-                              ),
-
+                    SizedBox(width: 30.0),
+                    Container(
+                      width: 250.0,
+                      height: 40.0,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(20.0,0,20.0,0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.green, width: 1.0),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
+                            child: DropdownButton<String>(
+                              value: _project.category,
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 30,
+                              elevation: 16,
+                              style: TextStyle(color: Colors.deepPurple),
+                              isExpanded: true,
+                              underline: SizedBox(),
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  _project.category = newValue;
+                                });
+                              },
+                              items: _categoryList.map((valueItem) {
+                                return DropdownMenuItem<String>(
+                                  value: valueItem,
+                                  child: Text(valueItem),
+                                );
+                              }).toList(),
                             ),
                           ),
                         ),
                       ),
                     ),
-                        // child:CheckboxListTile(
-                        //   controlAffinity: ListTileControlAffinity.leading,
-                        //   secondary: const Icon(Icons.assignment_turned_in),
-                        //   title: Text("Assign it to me",
-                        //     style: TextStyle(
-                        //       fontWeight: FontWeight.bold,
-                        //       color: Colors.black,
-                        //     ),),
-                        //   checkColor: Colors.white,
-                        //   activeColor: Colors.black,
-                        //   value: _assigned,
-                        //   onChanged: (bool value) async {
-                        //     _assigned = value;
-                        //     setState(() {});
-                        //   },
-                        // ),
-
-
                   ],
                 ),
-                SizedBox(height: 7.0,),
+                SizedBox(height: 20.0,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -482,16 +477,14 @@ class _AddNewProjectState extends State<AddNewProject> {
                     ),
                   ],
                 ),
-              ]
+              ],
             ),
           ),
         ),
-        SizedBox(height: 10.0,),
+        SizedBox(height: 20.0,),
       ]
     ),
   );
-
-  // This function is sub part of building different page's components
   _list() => Container(
     child: Card(
       margin: EdgeInsets.fromLTRB(20.0, 1.0, 20.0, 0),
@@ -569,7 +562,6 @@ class _AddNewProjectState extends State<AddNewProject> {
       ),
     ),
   );
-  // This function is sub part of building different page's components
   _list2() => Container(
     margin: EdgeInsets.only(top: 15.0),
     child: Card(
@@ -641,10 +633,47 @@ class _AddNewProjectState extends State<AddNewProject> {
               Divider(
                 height: 5.0,
               ),
+              //SizedBox(height: 30.0,),
             ],
           );
         },
         itemCount: _projectLangs.length,
+      ),
+    ),
+  );
+  _list3() => Visibility(
+    visible: showButtons,
+    child: Visibility(
+      visible: !widget.assigned,
+      child: Container(
+        width: 290.0,
+        height: 50.0,
+        margin: EdgeInsets.all(20.0),
+        child: Material(
+          borderRadius: BorderRadius.circular(5.0),
+          shadowColor: Colors.blueGrey,
+          color: Colors.blue,
+          child: GestureDetector(
+            onTap: () async{
+              _assigned = true;
+              _checkAssigneeProject();
+            },
+            child: Center(
+              child: Text(
+                'ASSIGN IT TO ME..',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    letterSpacing: 3.0,
+                    wordSpacing: 5.0,
+                    fontFamily: 'Montserrat'
+                ),
+              ),
+
+            ),
+          ),
+        ),
       ),
     ),
   );
@@ -824,6 +853,7 @@ class _AddNewProjectState extends State<AddNewProject> {
     _ctrlProposedName.text = await getUserName(progObj.data['proposedBy']);
     _ctrlSupervisor.text = progObj.data['supervisor'].toString();
     _ctrlSuperviseddName.text = await getUserName(progObj.data['supervisor']);
+    _ctrlCategory.text = progObj.data['category'].toString();
 
     _project.documentId = progObj.documentID;
     _project.projectTitle = progObj.data['projectTitle'];
@@ -833,6 +863,11 @@ class _AddNewProjectState extends State<AddNewProject> {
     _project.noOfStudents =progObj.data['noOfStudents'];
     _project.supervisorName =progObj.data['supervisorName'];
     _project.available =progObj.data['available'];
+    _project.category = progObj.data['category'];
+
+    setState(() {
+
+    });
 
     return _project;
   }
@@ -893,4 +928,14 @@ class _AddNewProjectState extends State<AddNewProject> {
   _showHideButtons () async{
     return showButtons = await checkStudentExist(globals.userId);
   }
+
+  _getCategoryList() async {
+    QuerySnapshot qShot = await getProjectDocuments();
+
+    for (int row=0; row<qShot.documents.length; row++){
+      _categoryList.add(qShot.documents[row].data['category']);
+    }
+    _categoryList = _categoryList.toSet().toList();
+  }
+
 }

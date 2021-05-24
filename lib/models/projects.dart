@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class Projects {
   String documentId;
+  String pId;
   String projectTitle;
   String projectDesc;
   int proposedBy;
@@ -11,7 +12,8 @@ class Projects {
   String supervisorName;
   bool available;
   Timestamp createdDt;
+  String category;
 
 
-  Projects(this.documentId,this.projectTitle,this.projectDesc,this.proposedBy,this.supervisor,this.noOfStudents, this.supervisorName, this.available);
+  Projects(this.documentId,this.pId,this.projectTitle,this.projectDesc,this.proposedBy,this.supervisor,this.noOfStudents, this.supervisorName, this.available, this.category);
 }

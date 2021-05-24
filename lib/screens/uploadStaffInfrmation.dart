@@ -1,76 +1,54 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graduater/api/graduater_api.dart';
 import 'package:graduater/components/screenTitleWidget.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
+import 'package:graduater/models/projects.dart';
 import 'package:graduater/models/staff.dart';
 import 'package:graduater/models/user.dart';
+import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:graduater/notifier/auth_notifier.dart';
-import 'package:graduater/api/graduater_api.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:uuid/uuid.dart';
 
 class UploadStaffInformation extends StatefulWidget {
   @override
-  _UploadStaffInformationState createState() => _UploadStaffInformationState();
+  _UploadStaffInfoState createState() => _UploadStaffInfoState();
 }
 
-class _UploadStaffInformationState extends State<UploadStaffInformation> {
-
+class _UploadStaffInfoState extends State<UploadStaffInformation> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController _semicircleController = ScrollController();
-
   List<List<dynamic>> _data = [];
-  List<Staff> _staff = [];
+  List<Staff> _staff =[];
+
   bool _inserted = false;
+  String fileName;
+  String path;
+  Map<String, String> paths;
+  List<String> extensions;
+  bool isLoadingPath = false;
+  bool isMultiPick = false;
+  FileType fileType;
+
+  @override
+  void initState(){
+    super.initState();
+    setState(() {
+    });
+    //_inserted = false;
+  }
 
   // This function is triggered when the floating button is pressed
   void _loadCSV() async {
-    final _rawData = await rootBundle.loadString("assets/staff_info.csv");
-    List<List<dynamic>> _listData = CsvToListConverter().convert(_rawData);
-    setState(() {
-      _data = _listData;
-      Alert(
-        context: context,
-        type: AlertType.warning,
-        title: "Upload Staff Information",
-        desc: "Would you like to save all staff info into database?",
-        buttons: [
-          DialogButton(
-            child: Text(
-              "YES",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () async{
-              await _uploadStaffInfo();
-              if (_staff.length >0)
-                Alert(
-                  context: context,
-                  title: "Success!",
-                  desc: _staff.length.toString()+' staff info have been inserted',
-                  image: Image.asset("images/success.png"),
-                ).show();
-            },
-            color: Color.fromRGBO(0, 179, 134, 1.0),
-          ),
-          DialogButton(
-            child: Text(
-              "CANCEL",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () => Navigator.pop(context),
-            gradient: LinearGradient(colors: [
-              Color.fromRGBO(116, 116, 191, 1.0),
-              Color.fromRGBO(52, 138, 199, 1.0)
-            ]),
-          )
-        ],
-      ).show();
-    });
+    _showStaff();
   }
 
   @override
@@ -109,7 +87,7 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
                       SizedBox(height: 2.0,),
                       Container(
                           padding: EdgeInsets.only(top: 10.0),
-                          child: Text (_data[index][1],)
+                          child: Text (_data[index][1])
                       ),
                       SizedBox(height: 2.0,),
                       Container(
@@ -137,47 +115,106 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
         ),
       ),
       floatingActionButton:
-      FloatingActionButton(child: Icon(Icons.add), onPressed: _loadCSV),
+      FloatingActionButton(child: Icon(Icons.add), onPressed: _loadCSV)
     );
   }
 
-  _uploadStaffInfo() async{
-    String skl;
-    String lng;
-    for (int row=1; row<_data.length; row++){
+  final spinkit = SpinKitRotatingCircle(
+    color: Colors.white,
+    size: 50.0,
+  );
+
+  _showStaff() async{
+    setState(() => isLoadingPath = true);
+
+    try {
+      path = await FilePicker.getFilePath(type: fileType != null? fileType: FileType.any, allowedExtensions: extensions);
+      paths = null;
+    }
+    on PlatformException catch (e) {
+      Alert(
+        context: context,
+        title: "Erorr!",
+        desc: "Unsupported operation" + e.toString(),
+        image: Image.asset("images/fail.png"),
+      ).show();
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoadingPath = false;
+      fileName = path != null ? path
+          .split('/')
+          .last : paths != null
+          ? paths.keys.toString() : '...';
+    });
+
+    final input = new File(path).openRead();
+    final fields = await input.transform(utf8.decoder).transform(new CsvToListConverter()).toList();
+    _data = fields;
+    setState(() {
+
+    });
+
+    Alert(
+      context: context,
+      type: AlertType.warning,
+      title: "Upload Staff Information",
+      desc: "Would you like to save staff info into the database?",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "YES",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () async {
+            _insertStaffInfo(_data);
+            if (_inserted)
+              Alert(
+                context: context,
+                title: "Success!",
+                desc: _staff.length.toString() +
+                    'staff have been inserted',
+                image: Image.asset("images/success.png"),
+              ).show();
+          },
+          color: Color.fromRGBO(0, 179, 134, 1.0),
+        ),
+      ],
+    ).show();
+  }
+
+  _insertStaffInfo(List<List<dynamic>> _data) async{
+    for (int i=1; i<_data.length; i++) {
       try{
-
         User user = User();
-        user.userId = _data[row][0];
-        user.userName = _data[row][1];
-        user.email = _data[row][2];
-        user.password = user.userName.substring(0,2)+'123456';
-        user.admin = false;
-
+        user.userId = _data[i][0];
+        user.userName = _data[i][1];
+        user.email = _data[i][2];
+        user.email = user.email.toLowerCase();
+        user.password = user.userName.substring(0,2).toLowerCase()+'123456';
 
         AuthNotifier authNotifier = Provider.of<AuthNotifier>(
             context, listen: false);
         await register(user, authNotifier);
 
-        Staff staff = Staff();
-        staff.staffId = _data[row][0];
-        staff.staffName = _data[row][1];
-        staff.officeNo = _data[row][3].toString();
-        staff.address = _data[row][4];
+        String docId = Uuid().v4();
 
+        Staff staff = Staff(docId, int.parse(_data[i][0].toString()), _data[i][1].toString(), _data[i][3].toString(), _data[i][4].toString());
         _staff.add(staff);
+        Firestore.instance.collection("staff").document(docId).setData({
+          'staffId': staff.staffId,
+          'staffName': staff.staffName,
+          'officeNo': staff.officeNo,
+          'address': staff.address});
 
-        Firestore.instance.collection("staff").document().setData(
-            {'staffId': staff.staffId,
-              'staffName': staff.staffName,
-              'officeNo': staff.officeNo,
-              'address': staff.address});
-
+        _inserted = true;
       }catch(e){
         Alert(
           context: context,
           title: "Erorr!",
-          desc: "Staff Info is already inserted or invalid formatted file!",
+          desc: "Staff info. already inserted or invalid file format",
           image: Image.asset("images/fail.png"),
         ).show();
         await Future.delayed(const Duration(seconds: 2));
@@ -187,5 +224,7 @@ class _UploadStaffInformationState extends State<UploadStaffInformation> {
     }
     Navigator.pop(context);
   }
-
 }
+
+
+

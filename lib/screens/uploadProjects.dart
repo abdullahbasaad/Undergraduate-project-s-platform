@@ -20,14 +20,16 @@ class UploadProjects extends StatefulWidget {
 }
 
 class _UploadProjectsState extends State<UploadProjects> {
-
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController _semicircleController = ScrollController();
   List<Projects> _projects = [];
+  List<String> pId = [];
   List<String> projectTitle = [];
   List<String> projectDesc = [];
   List<String> supervisor = [];
+  List<int> noOfStudent = [];
   List<String> supervisorNames = [];
+  List<String> category = [];
   List<String> skills = [];
   List<String> langs = [];
 
@@ -121,20 +123,12 @@ class _UploadProjectsState extends State<UploadProjects> {
                       ),
                       SizedBox(height: 15.0,),
                       Container(
-                        padding: EdgeInsets.only(bottom: 10.0),
-                        child:  FutureBuilder<String>(
-                          future: getUserName(int.parse(supervisor[index])),
-                          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                            if (snapshot.hasData) {
-                              return Text(snapshot.data,
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                ),);
-                            }else
-                              return Container();
-                          },
-                        ),
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Text(supervisor[index],
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),),
                       ),
                     ],
                 ),
@@ -156,14 +150,24 @@ class _UploadProjectsState extends State<UploadProjects> {
   _uploadProjects() async{
     String skl;
     String lng;
-    String sprName;
+    int sprvsr;
     for (int row=0; row<projectTitle.length; row++){
       skl='';
       lng='';
       try {
         if (projectTitle[row] == null) projectTitle[row] = 'No Title';
-        sprName = await getUserName(int.parse(supervisor[row]));
-        Projects project = Projects(null,projectTitle[row],projectTitle[row],int.parse(supervisor[row]),int.parse(supervisor[row]),1,sprName,true);
+        sprvsr = await getUserId(supervisor[row].toString());
+
+        Projects project = Projects(null,
+                                    pId[row].toString(),
+                                    projectTitle[row],
+                                    projectDesc[row],
+                                    sprvsr,
+                                    sprvsr,
+                                    int.parse(noOfStudent[row].toString()),
+                                    supervisor[row].toString(),
+                                    true,
+                                    category[row]);
         project.documentId = Uuid().v4();
         addProject(project, project.documentId);
 
@@ -214,7 +218,7 @@ class _UploadProjectsState extends State<UploadProjects> {
       await  addProjectSkill(prj, sen);
     }
   }
-
+  
   Future<void> insertLangs(String lng, String prj) async{
     String sen='';
     for(int i=0; i<lng.length; i++) {
@@ -237,7 +241,7 @@ class _UploadProjectsState extends State<UploadProjects> {
       await  addProjectLang(prj, sen);
     }
   }
-
+  
   showProjects() async{
     clearLists();
     setState(() => isLoadingPath = true);
@@ -266,11 +270,14 @@ class _UploadProjectsState extends State<UploadProjects> {
     final fields = await input.transform(utf8.decoder).transform(new CsvToListConverter()).toList();
 
     for (int i=1; i<fields.length; i++) {
-      projectTitle.add(fields[i][0].toString());
-      projectDesc.add(fields[i][1].toString());
-      supervisor.add(fields[i][2].toString());
-      skills.add(fields[i][3].toString());
-      langs.add(fields[i][4].toString());
+      pId.add(fields[i][0].toString());
+      supervisor.add(fields[i][1].toString());
+      category.add(fields[i][2].toString());
+      projectTitle.add(fields[i][3].toString());
+      noOfStudent.add(int.parse(fields[i][4].toString()));
+      skills.add(fields[i][5].toString());
+      langs.add(fields[i][6].toString());
+      projectDesc.add(fields[i][7].toString());
     }
   }
 
@@ -279,6 +286,8 @@ class _UploadProjectsState extends State<UploadProjects> {
     projectTitle.clear();
     projectDesc.clear();
     supervisor.clear();
+    noOfStudent.clear();
+    pId.clear();
     supervisorNames.clear();
     skills.clear();
     langs.clear();

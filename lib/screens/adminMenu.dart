@@ -29,7 +29,8 @@ class _AdminMenuState extends State<AdminMenu> {
   final _textFieldController = TextEditingController();
   final _textFieldAssignedController = TextEditingController();
   TextEditingController _controller;
-  int usrToAdmin;
+  String usrToAdmin;
+  int usrUnassign;
   int assignedTo;
   int docLength= 0;
   bool vsbl = false;
@@ -191,7 +192,7 @@ class _AdminMenuState extends State<AdminMenu> {
                           inputFormatters: [new WhitelistingTextInputFormatter(RegExp("[0-9]")),],
                           onChanged: (value) {
                             setState(() {
-                              usrToAdmin = int.parse(value);
+                              usrUnassign = int.parse(value);
                             });
                           },
                           controller: _textFieldController,
@@ -248,7 +249,7 @@ class _AdminMenuState extends State<AdminMenu> {
                         content: TextField(
                           onChanged: (value) {
                             setState(() {
-                              usrToAdmin = int.parse(value);
+                              usrToAdmin = value;
                             });
                           },
                           controller: _textFieldController,
@@ -436,13 +437,15 @@ class _AdminMenuState extends State<AdminMenu> {
     return qShot.documents.map(
             (doc) => Projects(
             doc.documentID,
+            doc.data['pId'],
             doc.data['projectTitle'],
             doc.data['projectDesc'],
             doc.data['proposedBy'],
             doc.data['supervisor'],
             doc.data['noOfStudents'],
             doc.data['supervisorName'],
-            doc.data['available'])
+            doc.data['available'],
+            doc.data['category'])
     ).toList();
   }
 
