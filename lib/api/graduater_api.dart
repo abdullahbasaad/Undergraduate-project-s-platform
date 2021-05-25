@@ -185,22 +185,12 @@ Future<bool> checkProgProjectDocuments(String projDoc, String langDesc) async  {
 }
 
 // To check if a student assigned project or not?
-Future<bool> isStudentHasProject(int stdId) async {
-  QuerySnapshot qShot = await hasStudentProject(stdId);
-  if (qShot.documents.length > 0) {
-    if (qShot.documents[0].data['projectId'] != null)
-      return false;
-  }
-  return true;
-}
-
-// Return a project id of student if a student has a project
 Future<String> returnStudentProject(int stdId) async {
   QuerySnapshot qShot = await hasStudentProject(stdId);
-  if (qShot.documents.length > 0)
+  if (qShot.documents.length > 0) {
     return qShot.documents[0].data['projectId'];
-  else
-    return null;
+  }
+  return null;
 }
 
 // Check if student id exists in the student's collection

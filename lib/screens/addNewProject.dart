@@ -490,159 +490,180 @@ class _AddNewProjectState extends State<AddNewProject> {
     ),
   );
   _list() => Container(
-    child: Card(
-      margin: EdgeInsets.fromLTRB(20.0, 1.0, 20.0, 0),
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        padding: EdgeInsets.all(8),
-        itemBuilder: (context,index) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(Icons.list,
-                  color: Colors.blue,
-                  size: 40.0),
-                title: Text (_projectSkills[index].skillDesc,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),),
-                trailing: Visibility(
-                  visible: showButtons==true?false:true,
-                  child: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
-                    onPressed: () async{
-                      if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
-                        Alert(
-                          context: context,
-                          title: "Warning!",
-                          desc: "Invalid privileges",
-                          image: Image.asset("images/fail.png"),
-                        ).show();
-                      }else
-                        Alert(
-                          context: context,
-                          type: AlertType.warning,
-                          title: "Warning Message",
-                          desc: "Are you sure?",
-                          buttons: [
-                            DialogButton(
-                              child: Text(
-                                "Cancel",
-                                style: TextStyle(color: Colors.black, fontSize: 20),
+    child: Column(
+      children: [
+      Text('Skills Required',
+      style: TextStyle(
+        fontSize: 19,
+        fontWeight: FontWeight.bold,
+      ),),
+      SizedBox(height: 10.0,),
+      Card(
+        margin: EdgeInsets.fromLTRB(20.0, 1.0, 20.0, 0),
+        child: ListView.builder(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          padding: EdgeInsets.all(8),
+          itemBuilder: (context,index) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.list,
+                    color: Colors.blue,
+                    size: 40.0),
+                  title: Text (_projectSkills[index].skillDesc,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),),
+                  trailing: Visibility(
+                    visible: showButtons==true?false:true,
+                    child: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
+                      onPressed: () async{
+                        if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
+                          Alert(
+                            context: context,
+                            title: "Warning!",
+                            desc: "Invalid privileges",
+                            image: Image.asset("images/fail.png"),
+                          ).show();
+                        }else
+                          Alert(
+                            context: context,
+                            type: AlertType.warning,
+                            title: "Warning Message",
+                            desc: "Are you sure?",
+                            buttons: [
+                              DialogButton(
+                                child: Text(
+                                  "Cancel",
+                                  style: TextStyle(color: Colors.black, fontSize: 20),
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                color: Color.fromRGBO(0, 179, 134, 1.0),
                               ),
-                              onPressed: () => Navigator.pop(context),
-                              color: Color.fromRGBO(0, 179, 134, 1.0),
-                            ),
-                            DialogButton(
-                              child: Text(
-                                "Yes",
-                                style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                              DialogButton(
+                                child: Text(
+                                  "Yes",
+                                  style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                                ),
+                                onPressed: () async{
+                                  await _deleteProjectSkill (_projectSkills[index].projDoc);
+                                  _refreshSkillList(widget.projectId);
+                                  Navigator.pop(context);
+                                },
+                                gradient: LinearGradient(colors: [
+                                  Color.fromRGBO(116, 116, 191, 1.0),
+                                  Color.fromRGBO(52, 138, 199, 1.0)
+                                ]),
                               ),
-                              onPressed: () async{
-                                await _deleteProjectSkill (_projectSkills[index].projDoc);
-                                _refreshSkillList(widget.projectId);
-                                Navigator.pop(context);
-                              },
-                              gradient: LinearGradient(colors: [
-                                Color.fromRGBO(116, 116, 191, 1.0),
-                                Color.fromRGBO(52, 138, 199, 1.0)
-                              ]),
-                            ),
-                          ],
-                        ).show();
-                    },
+                            ],
+                          ).show();
+                      },
+                    ),
                   ),
                 ),
-              ),
-              Divider(
-                height: 5.0,
-              ),
-            ],
-          );
-        },
-        itemCount: _projectSkills.length,
+                Divider(
+                  height: 5.0,
+                ),
+              ],
+            );
+          },
+          itemCount: _projectSkills.length,
+        ),
       ),
+      ],
     ),
   );
   _list2() => Container(
     margin: EdgeInsets.only(top: 15.0),
-    child: Card(
-      margin: EdgeInsets.fromLTRB(20.0, 1.0, 20.0, 20),
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        padding: EdgeInsets.all(8),
-        itemBuilder: (context,index) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(Icons.list,
-                    color: Colors.blue,
-                    size: 40.0),
-                title: Text(_projectLangs[index].langDesc,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),),
-                trailing: Visibility(
-                  visible: showButtons==true?false:true,
-                  child: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
-                    onPressed: () async{
-                      if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
-                        Alert(
-                          context: context,
-                          title: "Warning!",
-                          desc: "Invalid privileges",
-                          image: Image.asset("images/fail.png"),
-                        ).show();
-                      }else
-                        Alert(
-                          context: context,
-                          type: AlertType.warning,
-                          title: "Warning Message",
-                          desc: "Are you sure?",
-                          buttons: [
-                            DialogButton(
-                              child: Text(
-                                "Cancel",
-                                style: TextStyle(color: Colors.black, fontSize: 20),
+    child: Column(
+      children: [
+        Text('Programming Languages',
+          style: TextStyle(
+          fontSize: 19,
+          fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 10.0,),
+        Card(
+        margin: EdgeInsets.fromLTRB(20.0, 1.0, 20.0, 20),
+        child: ListView.builder(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          padding: EdgeInsets.all(8),
+          itemBuilder: (context,index) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.list,
+                      color: Colors.blue,
+                      size: 40.0),
+                  title: Text(_projectLangs[index].langDesc,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),),
+                  trailing: Visibility(
+                    visible: showButtons==true?false:true,
+                    child: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
+                      onPressed: () async{
+                        if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
+                          Alert(
+                            context: context,
+                            title: "Warning!",
+                            desc: "Invalid privileges",
+                            image: Image.asset("images/fail.png"),
+                          ).show();
+                        }else
+                          Alert(
+                            context: context,
+                            type: AlertType.warning,
+                            title: "Warning Message",
+                            desc: "Are you sure?",
+                            buttons: [
+                              DialogButton(
+                                child: Text(
+                                  "Cancel",
+                                  style: TextStyle(color: Colors.black, fontSize: 20),
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                color: Color.fromRGBO(0, 179, 134, 1.0),
                               ),
-                              onPressed: () => Navigator.pop(context),
-                              color: Color.fromRGBO(0, 179, 134, 1.0),
-                            ),
-                            DialogButton(
-                              child: Text(
-                                "Yes",
-                                style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                              DialogButton(
+                                child: Text(
+                                  "Yes",
+                                  style: TextStyle(color: Colors.blue[900], fontSize: 20),
+                                ),
+                                onPressed: () async{
+                                  await _deleteProjectLangDocument(_projectLangs[index].projDoc);
+                                  _refreshLangList(widget.projectId);
+                                  Navigator.pop(context);
+                                },
+                                gradient: LinearGradient(colors: [
+                                  Color.fromRGBO(116, 116, 191, 1.0),
+                                  Color.fromRGBO(52, 138, 199, 1.0)
+                                ]),
                               ),
-                              onPressed: () async{
-                                await _deleteProjectLangDocument(_projectLangs[index].projDoc);
-                                _refreshLangList(widget.projectId);
-                                Navigator.pop(context);
-                              },
-                              gradient: LinearGradient(colors: [
-                                Color.fromRGBO(116, 116, 191, 1.0),
-                                Color.fromRGBO(52, 138, 199, 1.0)
-                              ]),
-                            ),
-                          ],
-                        ).show();
-                    },
+                            ],
+                          ).show();
+                      },
+                    ),
                   ),
                 ),
-              ),
-              Divider(
-                height: 5.0,
-              ),
-              //SizedBox(height: 30.0,),
-            ],
-          );
-        },
-        itemCount: _projectLangs.length,
-      ),
+                Divider(
+                  height: 5.0,
+                ),
+                //SizedBox(height: 30.0,),
+              ],
+            );
+          },
+          itemCount: _projectLangs.length,
+        ),
+        ),
+      ],
     ),
   );
   _list3() => Visibility(
@@ -884,40 +905,28 @@ class _AddNewProjectState extends State<AddNewProject> {
   // This function used to assign a project to student. it has many checks before assigning operation
   // is completed
   _checkAssigneeProject() async {
+    String projectAssigned;
     if (_assigned) {
       if (await checkStudentExist(globals.userId)) {
-        if (! await isStudentHasProject(globals.userId)){
+        projectAssigned = await returnStudentProject(globals.userId);
+
+        if (await getHowManyStudentAssigned(_project.documentId) >=
+            _project.noOfStudents) {
           Alert(
             context: context,
             title: "Failed!",
-            desc: "You already have a project, please contact the admin.",
+            desc: "The project is not available, it had chosen by a student",
             image: Image.asset("images/fail.png"),
           ).show();
           _assigned = false;
-        }
-        else
-          if (await getHowManyStudentAssigned(_project.documentId) >=
-              _project.noOfStudents) {
-            Alert(
-              context: context,
-              title: "Failed!",
-              desc: "The project is not available, it had chosen by a student",
-              image: Image.asset("images/fail.png"),
-            ).show();
-            _assigned = false;
         }else{
           await assignProjectToStudent(globals.userId, _project.documentId);
+          if (projectAssigned != null) await updateProjectAvailable(projectAssigned, true);
           if (await getHowManyStudentAssigned(_project.documentId) == _project.noOfStudents){
             await updateProjectAvailable(_project.documentId, false);
-            Alert(
-              context: context,
-              title: "Success!",
-              desc: "The project has been assigned successfully",
-              image: Image.asset("images/success.png"),
-            ).show();
             Navigator.pushNamed(context, '/showProjects');
+            }
           }
-        }
       } else {
         Alert(
           context: context,
@@ -928,7 +937,7 @@ class _AddNewProjectState extends State<AddNewProject> {
         _assigned = false;
       }
     }
-    setState(() {});
+    //setState(() {});
   }
 
   _showHideButtons () async{

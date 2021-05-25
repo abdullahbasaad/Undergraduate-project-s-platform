@@ -452,35 +452,28 @@ class _AdminMenuState extends State<AdminMenu> {
   // Admin can assign a project to a particular student by using student id
   Future<void> assignProject (String projId, int studId, int noOfStud) async{
     bool suc = false;
+    String projectAssigned;
     int stdCount = 0;
+
     if (await checkStudentExist(studId)){
-      if (await isStudentHasProject(studId)) {
-        stdCount = await getHowManyStudentAssigned(projId);
-        if (stdCount < noOfStud) {
-          suc = true;
-          assignProjectToStudent(studId, projId);
+      projectAssigned = await returnStudentProject(globals.userId);
+      stdCount = await getHowManyStudentAssigned(projId);
 
-          if (await getHowManyStudentAssigned(projId) == noOfStud )
-            await updateProjectAvailable(projId, false);
+      if (stdCount < noOfStud) {
+        suc = true;
+        assignProjectToStudent(studId, projId);
 
-          Alert(
-            context: context,
-            title: "Success!",
-            desc: "The project assigned to the student successfully",
-            image: Image.asset("images/success.png"),
-          ).show();
+        if (await getHowManyStudentAssigned(projId) == noOfStud )
+          await updateProjectAvailable(projId, false);
 
-          stdCount = await getHowManyStudentAssigned(projId);
-          if (stdCount == noOfStud)
-            await updateProjectAvailable(projId, false);
-        } else
-          Alert(
-            context: context,
-            title: "Failed!",
-            desc: "The project had been choosen!!..",
-            image: Image.asset("images/fail.png"),
-          ).show();
-      }
+        if (projectAssigned != null) await updateProjectAvailable(projectAssigned, true);
+      } else
+        Alert(
+          context: context,
+          title: "Failed!",
+          desc: "The project had been choosen!!..",
+          image: Image.asset("images/fail.png"),
+        ).show();
     }else
       Alert(
         context: context,
