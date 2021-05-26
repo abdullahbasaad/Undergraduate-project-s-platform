@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "1048876899163",
-    "project_id": "graduater-45167",
-    "storage_bucket": "graduater-45167.appspot.com"
+    "project_number": "978543156303",
+    "project_id": "bcu-cds-ug-fyp",
+    "storage_bucket": "bcu-cds-ug-fyp.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1048876899163:android:725c764ddd863032ae587e",
+        "mobilesdk_app_id": "1:978543156303:android:c0562b3bc80fed48dc5e3a",
         "android_client_info": {
-          "package_name": "com.abd.graduater"
+          "package_name": "BCU.CDS.UG.FYP"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1048876899163-26ao7ggm9sl6om3jpqadit1am5mb5kgd.apps.googleusercontent.com",
+          "client_id": "978543156303-b169neiaivhbrrtt8d8cptpvm0dlj3sj.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBi9kwaFAFXgyJ4z2T-Zi6VkelOvD800Bs"
+          "current_key": "AIzaSyCFNU8c2jFHaZmpnFDHJuEl90EzjQ-Ba5M"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1048876899163-26ao7ggm9sl6om3jpqadit1am5mb5kgd.apps.googleusercontent.com",
+              "client_id": "978543156303-b169neiaivhbrrtt8d8cptpvm0dlj3sj.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

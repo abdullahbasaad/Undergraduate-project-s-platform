@@ -1,48 +1,48 @@
-Id,Name,Email,Route name,Phone
-18105389,Abdullah,abdullah.basaad@mail.bcu.ac.uk,BSc (Hons) Computer and Data Science,
-11732605,OLUWAPELUMI,Oluwapelumi.Aregbesola@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732606,OMAR,Omar.Mahmood4@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732607,OMER,Omer.Shahid@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732608,QUSAY,Qusay.Mohamad@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732609,RAAJ,Raaj.Jetha@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732610,RAFAL,Rafal.Szponarski@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732611,RAHEEM,Raheem.Haider@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732612,RANJODH,Ranjodh.Singh@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732613,RHYS,Rhys.Duffus@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732614,RIYA,Riya.Sharma@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732615,ROBBIE,Anil.Jass@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732616,ROBERT,Robert.Shinton@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732617,RYAN,Ryan.Hosiene@mail.bcu.ac.uk,MSci Computer Science,
-11732618,SABAH,Sabah.Saddiq@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732619,SADA DANKAURA,SadaDankaura.Kabir@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732620,SAMUEL,Samuel.Dugmore@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732621,SAMUEL,Samuel.Okoye@mail.bcu.ac.uk,MSci Computer Science,
-11732622,SASAN,Sasan.Radan@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732623,SHAKIR,Shakir.Mohammed@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732624,SHEHABADDIN,Shehabaddin.Al-Shameri@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732625,SHOAIB,Shoaib.Hussain2@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732626,SIFAT,Sifat.Jahir@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732627,SOPHIA,Sophia.Hussain2@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732628,STEPHEN,Stephen.Kinsey@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732629,SUZAN,Suzan.Musa@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732630,TAHA,Taha.Mahmoud@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732631,TALAL,Talal.Rashid@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732632,TANZILUR,Tanzilur.Khan@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732633,TARUN,Tarun.Kalwan@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732634,THANUSHAN,Thanushan.Rajenthiran@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732635,THOMAS,Thomas.Samai@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732636,THOMAS,Thomas.Jeevan@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732637,THOMAS,Thomas.Pottinger@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732638,TILLY,Tilly.Davies@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732639,UMAIR,Umair.Ahmed@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732640,VIET BAC,Viet.Hoang@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732641,VLAD,Vlad.Creanga@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732642,WAHAAB,Wahaab.Naveed@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732643,WAJIAH,Wajiah.Raja@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732644,WAQAAR,Waqaar.Ali@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732645,WASEEM,Waseem.Eslam@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732646,WILLIAM,William.Hunt2@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW,
-11732647,WOJCIECH,Wojciech.Franczak@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732648,XIAODONG,Xiaodong.Dai@mail.bcu.ac.uk,BSc (Hons) Computer Science,
-11732649,Yonus ,Yonus.Akbari@mail.bcu.ac.uk,MSci Computer Science,
-11732650,ZESHAAN,Zeshaan.Ansar@mail.bcu.ac.uk,BSc (Hons) Computer Science,
+Id,Name,Email,Route name
+18105389,Abdullah,abdullah.basaad@mail.bcu.ac.uk,BSc (Hons) Computer and Data Science
+11732605,OLUWAPELUMI,Oluwapelumi.Aregbesola@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732606,OMAR,Omar.Mahmood4@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732607,OMER,Omer.Shahid@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732608,QUSAY,Qusay.Mohamad@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732609,RAAJ,Raaj.Jetha@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732610,RAFAL,Rafal.Szponarski@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732611,RAHEEM,Raheem.Haider@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732612,RANJODH,Ranjodh.Singh@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732613,RHYS,Rhys.Duffus@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732614,RIYA,Riya.Sharma@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732615,ROBBIE,Anil.Jass@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732616,ROBERT,Robert.Shinton@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732617,RYAN,Ryan.Hosiene@mail.bcu.ac.uk,MSci Computer Science
+11732618,SABAH,Sabah.Saddiq@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732619,SADA DANKAURA,SadaDankaura.Kabir@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732620,SAMUEL,Samuel.Dugmore@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732621,SAMUEL,Samuel.Okoye@mail.bcu.ac.uk,MSci Computer Science
+11732622,SASAN,Sasan.Radan@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732623,SHAKIR,Shakir.Mohammed@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732624,SHEHABADDIN,Shehabaddin.Al-Shameri@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732625,SHOAIB,Shoaib.Hussain2@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732626,SIFAT,Sifat.Jahir@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732627,SOPHIA,Sophia.Hussain2@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732628,STEPHEN,Stephen.Kinsey@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732629,SUZAN,Suzan.Musa@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732630,TAHA,Taha.Mahmoud@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732631,TALAL,Talal.Rashid@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732632,TANZILUR,Tanzilur.Khan@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732633,TARUN,Tarun.Kalwan@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732634,THANUSHAN,Thanushan.Rajenthiran@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732635,THOMAS,Thomas.Samai@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732636,THOMAS,Thomas.Jeevan@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732637,THOMAS,Thomas.Pottinger@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732638,TILLY,Tilly.Davies@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732639,UMAIR,Umair.Ahmed@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732640,VIET BAC,Viet.Hoang@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732641,VLAD,Vlad.Creanga@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732642,WAHAAB,Wahaab.Naveed@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732643,WAJIAH,Wajiah.Raja@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732644,WAQAAR,Waqaar.Ali@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732645,WASEEM,Waseem.Eslam@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732646,WILLIAM,William.Hunt2@mail.bcu.ac.uk,BSc (Hons) Computer Science with SW
+11732647,WOJCIECH,Wojciech.Franczak@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732648,XIAODONG,Xiaodong.Dai@mail.bcu.ac.uk,BSc (Hons) Computer Science
+11732649,Yonus ,Yonus.Akbari@mail.bcu.ac.uk,MSci Computer Science
+11732650,ZESHAAN,Zeshaan.Ansar@mail.bcu.ac.uk,BSc (Hons) Computer Science

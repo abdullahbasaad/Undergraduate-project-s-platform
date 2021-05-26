@@ -8,6 +8,7 @@ import 'package:graduater/components/screenTitleWidget.dart';
 import 'package:graduater/models/project_languages.dart';
 import 'package:graduater/models/project_skills.dart';
 import 'package:graduater/models/projects.dart';
+import 'package:graduater/screens/showProjects.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:graduater/models/globals.dart' as globals;
 import 'package:uuid/uuid.dart';
@@ -185,41 +186,44 @@ class _AddNewProjectState extends State<AddNewProject> {
                 ),),
                 Row(
                   children: [
-                    Container(
-                      width: 80.0,
-                      child: TextFormField(
-                        controller: _ctrlProposedBy,
-                        inputFormatters: [new WhitelistingTextInputFormatter(RegExp("[0-9]")),],
-                        readOnly: _checkEditabbleFields(),
-                        style: kTextFormFieldStyleAddProject,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          hintText: 'ID',
-                          focusColor: Colors.blue[900],
-                          hintStyle: TextStyle(
-                            color: Colors.grey,
+                    Visibility(
+                      visible: (!globals.staff)?false:true,
+                      child: Container(
+                        width: 80.0,
+                        child: TextFormField(
+                          controller: _ctrlProposedBy,
+                          inputFormatters: [new WhitelistingTextInputFormatter(RegExp("[0-9]")),],
+                          readOnly: _checkEditabbleFields(),
+                          style: kTextFormFieldStyleAddProject,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'ID',
+                            focusColor: Colors.blue[900],
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                            ),
                           ),
+                          onChanged: (val) async{
+                            if (val != null)
+                              _project.proposedBy = int.parse(val);
+                               _uName = await getUserName(int.parse(val));
+                             if (_uName == null){
+                               _ctrlProposedName.text = '';
+                             }
+                             _ctrlProposedName.text = _uName;
+                             setState(() {});
+                          },
+                          validator: (val) {
+                            if (val.length==0){
+                            return 'Required!';
+                            }else if (_ctrlProposedName.text == '') {
+                              return 'Invalid ID';
+                            }
+                            return null;
+                            setState(() {});
+                          },
                         ),
-                        onChanged: (val) async{
-                          if (val != null)
-                            _project.proposedBy = int.parse(val);
-                             _uName = await getUserName(int.parse(val));
-                           if (_uName == null){
-                             _ctrlProposedName.text = '';
-                           }
-                           _ctrlProposedName.text = _uName;
-                           setState(() {});
-                        },
-                        validator: (val) {
-                          if (val.length==0){
-                          return 'Required!';
-                          }else if (_ctrlProposedName.text == '') {
-                            return 'Invalid ID';
-                          }
-                          return null;
-                          setState(() {});
-                        },
                       ),
                     ),
                     SizedBox(width: 15.0,),
@@ -251,42 +255,45 @@ class _AddNewProjectState extends State<AddNewProject> {
                   ),),
                 Row(
                   children: [
-                    Container(
-                      width: 80.0,
-                      child: TextFormField(
-                        controller: _ctrlSupervisor,
-                        inputFormatters: [new WhitelistingTextInputFormatter(RegExp("[0-9]")),],
-                        readOnly: _checkEditabbleFields(),
-                        style: kTextFormFieldStyleAddProject,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          hintText: 'ID',
-                          focusColor: Colors.blue[900],
-                          hintStyle: TextStyle(
-                            color: Colors.grey,
+                    Visibility(
+                      visible: (!globals.staff)?false:true,
+                      child: Container(
+                        width: 80.0,
+                        child: TextFormField(
+                          controller: _ctrlSupervisor,
+                          inputFormatters: [new WhitelistingTextInputFormatter(RegExp("[0-9]")),],
+                          readOnly: _checkEditabbleFields(),
+                          style: kTextFormFieldStyleAddProject,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'ID',
+                            focusColor: Colors.blue[900],
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                        onChanged: (val) async{
-                          if (val != null)
-                            _project.supervisor = int.parse(val);
-                            _uName = await getUserName(_project.supervisor);
-                            if (_uName == null)
-                              _ctrlSuperviseddName.text = '';
-                            else
-                              _ctrlSuperviseddName.text = _uName;
-                          _project.supervisorName = _uName;
-                          setState(() {});
-                        },
-                        validator: (val) {
-                          if (val.length==0)
-                            return 'Required!';
-                          else if (_ctrlSuperviseddName.text == '')
-                            return 'Invalid ID';
-                          setState(() {});
-                          return null;
+                          onChanged: (val) async{
+                            if (val != null)
+                              _project.supervisor = int.parse(val);
+                              _uName = await getUserName(_project.supervisor);
+                              if (_uName == null)
+                                _ctrlSuperviseddName.text = '';
+                              else
+                                _ctrlSuperviseddName.text = _uName;
+                            _project.supervisorName = _uName;
+                            setState(() {});
+                          },
+                          validator: (val) {
+                            if (val.length==0)
+                              return 'Required!';
+                            else if (_ctrlSuperviseddName.text == '')
+                              return 'Invalid ID';
+                            setState(() {});
+                            return null;
 
-                        },
+                          },
+                        ),
                       ),
                     ),
                     SizedBox(width: 15.0,),
@@ -518,7 +525,7 @@ class _AddNewProjectState extends State<AddNewProject> {
                     fontWeight: FontWeight.bold,
                   ),),
                   trailing: Visibility(
-                    visible: showButtons==true?false:true,
+                    visible: (!globals.staff)?false:true,
                     child: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
                       onPressed: () async{
                         if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
@@ -607,7 +614,7 @@ class _AddNewProjectState extends State<AddNewProject> {
                     fontWeight: FontWeight.bold,
                   ),),
                   trailing: Visibility(
-                    visible: showButtons==true?false:true,
+                    visible: (!globals.staff)?false:true,
                     child: IconButton(icon: Icon(Icons.delete_sweep,color: Colors.blue),
                       onPressed: () async{
                         if ((globals.userId != _project.proposedBy) && (globals.admin != true)){
@@ -669,7 +676,7 @@ class _AddNewProjectState extends State<AddNewProject> {
   _list3() => Visibility(
     visible: showButtons,
     child: Visibility(
-      visible: widget.assigned,
+      visible: (!globals.staff)?true:false,
       child: Container(
         width: 290.0,
         height: 50.0,
@@ -905,13 +912,12 @@ class _AddNewProjectState extends State<AddNewProject> {
   // This function used to assign a project to student. it has many checks before assigning operation
   // is completed
   _checkAssigneeProject() async {
-    String projectAssigned;
-    if (_assigned) {
+    String projectAssigned='';
+    //if (_assigned) {
       if (await checkStudentExist(globals.userId)) {
         projectAssigned = await returnStudentProject(globals.userId);
 
-        if (await getHowManyStudentAssigned(_project.documentId) >=
-            _project.noOfStudents) {
+        if (await getHowManyStudentAssigned(_project.documentId) > _project.noOfStudents) {
           Alert(
             context: context,
             title: "Failed!",
@@ -921,11 +927,13 @@ class _AddNewProjectState extends State<AddNewProject> {
           _assigned = false;
         }else{
           await assignProjectToStudent(globals.userId, _project.documentId);
+          globals.projectId = _project.documentId;
+          globals.hasProject = true;
           if (projectAssigned != null) await updateProjectAvailable(projectAssigned, true);
           if (await getHowManyStudentAssigned(_project.documentId) == _project.noOfStudents){
             await updateProjectAvailable(_project.documentId, false);
-            Navigator.pushNamed(context, '/showProjects');
             }
+          Navigator.pushNamed(context, '/showProjects');
           }
       } else {
         Alert(
@@ -936,12 +944,13 @@ class _AddNewProjectState extends State<AddNewProject> {
         ).show();
         _assigned = false;
       }
-    }
-    //setState(() {});
+    //}
+    setState(() {});
   }
 
   _showHideButtons () async{
-    return showButtons = await checkStudentExist(globals.userId);
+    if (widget.projectId != null)
+      return showButtons = await returnProjectAvailability(widget.projectId);
   }
 
   _getCategoryList() async {

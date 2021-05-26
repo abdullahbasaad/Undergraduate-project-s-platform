@@ -1,5 +1,8 @@
-String currentUser;
-String email;
-bool admin=false;
+String currentUser='';
+String email='';
+bool admin;
 int userId;
-String roomDoc;
+String roomDoc='';
+bool staff;
+bool hasProject;
+String projectId='';

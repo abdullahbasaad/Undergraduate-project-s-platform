@@ -46,22 +46,14 @@ class _ShowProjectsState extends State<ShowProjects> {
   bool langsFound = false;
   bool visible = false;
   bool isSwitched = false;
-  static bool showButtons = false;
   String str;
 
   @override
   void initState(){
     super.initState();
-    setState(() {  });
-    _showHideButtons();
+    setState(() { });
     skillsFound = false;
     langsFound = false;
-    // _queryProjects.clear();
-    // _projectSkills.clear();
-    // _projectLangs.clear();
-    // _projects.clear();
-    //_categoryList.clear();
-    //_tempProjects.clear();
     _getAllProjects();
     _refreshSkillList();
     _refreshLangList();
@@ -78,7 +70,7 @@ class _ShowProjectsState extends State<ShowProjects> {
       style: optionStyle,
     ),
     Visibility(
-      visible: showButtons,
+      visible: (!globals.staff)?true:false,
       child: Text(
         'Index 1: My Project',
         style: optionStyle,
@@ -89,7 +81,7 @@ class _ShowProjectsState extends State<ShowProjects> {
       style: optionStyle,
     ),
     Visibility(
-      visible: !showButtons,
+      visible: (globals.staff)?true:false,
       child: Text(
           'Index 3: New Project',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)
@@ -108,14 +100,12 @@ class _ShowProjectsState extends State<ShowProjects> {
       _selectedIndex = 0;
     }else
     if (_selectedIndex == 3){
-      if (!showButtons)
-        await _awaitCallingProjectDtls(null, 1);
+      await _awaitCallingProjectDtls(null, 1);
       _selectedIndex = 0;
     }
 
     else if (_selectedIndex == 1) {
-      if (showButtons==true)
-        callMyProject();
+      callMyProject();
       _selectedIndex = 0;
     }
     setState(() {});
@@ -348,6 +338,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                     color: Colors.blue,
                     child: GestureDetector(
                       onTap: () async{
+                        _projects.clear();
                         _projectSkills.clear();
                         _projectLangs.clear();
 
@@ -417,7 +408,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                 ),
                 SizedBox(height: 5.0,),
                 Visibility(
-                  visible: showButtons==true?false:true,
+                  visible: (globals.staff)?true:false,
                   child: ListTile(
                     leading: Icon(Icons.assignment,
                       color: Colors.blue[900],),
@@ -429,7 +420,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                 ),
                 SizedBox(height: 5.0,),
                 Visibility(
-                  visible: showButtons==true?false:true,
+                  visible: (globals.staff)?true:false,
                   child: ListTile(
                     leading: Icon(Icons.list,
                       color: Colors.blue[900],),
@@ -458,7 +449,7 @@ class _ShowProjectsState extends State<ShowProjects> {
                 ),
                 SizedBox(height: 2.0,),
                 Visibility(
-                  visible: showButtons==true?true:false,
+                  visible: (!globals.staff)?true:false,
                   child: ListTile(
                       leading: Icon(Icons.assignment_turned_in,
                         color: Colors.deepOrange,),
@@ -508,13 +499,12 @@ class _ShowProjectsState extends State<ShowProjects> {
           controller: _semicircleController,
           itemCount: _projects.length,
           itemBuilder: (_, index) {
-            return GestureDetector(
-              onTap: () async{
+            return GestureDetector(onTap: () async{
                 await _awaitCallingProjectDtls(_projects[index].documentId, 0);
               },
               child: Card(
                 margin: const EdgeInsets.all(3),
-                color: Colors.blue[50],
+                color: (_projects[index].documentId==globals.projectId)?Colors.white:Colors.blue[50],
                 child: ListTile(
                   title: Column(
                       children: [
@@ -597,34 +587,52 @@ class _ShowProjectsState extends State<ShowProjects> {
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Text("Home"),
+            icon: Icon(Icons.home,
+                color: Colors.red[200]),
+            title: Text("Home",
+                  style: TextStyle(
+                    color: Colors.red[200],
+                  ),),
           ),
           BottomNavigationBarItem(
             icon: Visibility(
-                visible: showButtons,
-                child: Icon(Icons.assignment_turned_in)
+              visible: (globals.staff)?false:true,
+              child: Icon(Icons.assignment_turned_in,
+                    color: (globals.hasProject)?Colors.red[900]:Colors.red[200]),
             ),
-            title: Text("My Project",
-              style: TextStyle(color: showButtons==false?Colors.white:Colors.red[200]),),
+            title: Visibility(
+              visible:(globals.staff)?false:true,
+              child: Text("My Project",
+                style: TextStyle(
+                    color: (globals.hasProject)?Colors.red[900]:Colors.red[200]),
           ),
+            )),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            title: Text("Chat"),
+            icon: Icon(Icons.chat,
+                  color: Colors.red[900],),
+            title: Text("Chat",
+                    style: TextStyle(
+                      color: Colors.red[900],
+                    ),),
           ),
-          BottomNavigationBarItem(
+
+    BottomNavigationBarItem(
             icon: Visibility(
-                visible: !showButtons,
-                child: Icon(Icons.add_circle)),
-            title: Text("New Project",
-              style: TextStyle(color: showButtons==false? Colors.red[200]:Colors.white),),
+                visible: (globals.staff)?true:false,
+                child: Icon(Icons.add_circle,
+                color: Colors.red[900])),
+            title: Visibility(
+              visible: (globals.staff)?true:false,
+              child: Text("New Project",
+                style: TextStyle(color: Colors.red[900])),
+            ),
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.red[900],
+        //selectedItemColor: Colors.red[900],
         showUnselectedLabels: true,
         backgroundColor: Colors.black,
-        unselectedItemColor: Colors.red[200],
+        //unselectedItemColor: Colors.red[900],
         onTap: _onItemTapped,
       ),
     );
@@ -673,12 +681,23 @@ class _ShowProjectsState extends State<ShowProjects> {
     _categoryList = _categoryList.toSet().toList();
   }
 
-  _getAllSuperProjects() async{ // Firestore DB
-    _projects.clear();
+  _getAllSubConditions() async{ // Firestore DB
+    //_projects.clear();
     _tempProjects.clear();
 
     if (_selectedStaff != _staffList[0])
-      _projects.addAll(await getProjectsSupervisorList(_selectedStaff));
+      if (_projects.length > 0){
+        for (Projects prj in _projects) {
+          if (prj.supervisorName == _selectedStaff) {
+            _tempProjects.add(prj);
+          }
+        }
+        _projects.clear();
+        _projects.addAll(_tempProjects);
+      }else
+        _projects.addAll(await getProjectsSupervisorList(_selectedStaff));
+
+    _tempProjects.clear();
 
     if (_selectedCategory != _categoryList[0]){
       if (_projects.length > 0){
@@ -768,6 +787,7 @@ class _ShowProjectsState extends State<ShowProjects> {
   }
 
   _getAllCatProjects(String cat) async { // Firestore DB
+    globals.hasProject = globals.hasProject;
     _projects.addAll(await getProjectsCategoryList(cat));
     setState(() {});
   }
@@ -816,12 +836,17 @@ class _ShowProjectsState extends State<ShowProjects> {
     bool vis = await checkStudentExist(globals.userId);
     bool asg = false;
 
-    DocumentSnapshot ds = await Firestore.instance.collection('project').document(projId).get();
-    if (ds != null){
-      int howManyStudent = ds.data['noOfStudents'];
-      if (howManyStudent > await getHowManyStudentAssigned(projId))
-        asg = true;
-    }
+    if (projId != null) {
+      DocumentSnapshot ds = await Firestore.instance.collection('project')
+          .document(projId)
+          .get();
+      if (ds != null) {
+        int howManyStudent = ds.data['noOfStudents'];
+        if (howManyStudent > await getHowManyStudentAssigned(projId))
+          asg = true;
+      }
+    }else asg = false;
+
 
     if (whoCalled == 0){
       final result = await Navigator.push(
@@ -883,8 +908,6 @@ class _ShowProjectsState extends State<ShowProjects> {
   }
 
   _projectsQuery() async{
-    _projects.clear();
-
     if (_selectedLang != _langsList[0]){
       if (langsFound) {
         for (ProjectLanguages prLn in _projectLangs) {
@@ -921,7 +944,7 @@ class _ShowProjectsState extends State<ShowProjects> {
     }
 
     if ((_selectedStaff != _staffList[0]) || (_selectedCategory != _categoryList[0]) || (isSwitched)){
-      _getAllSuperProjects();
+      _getAllSubConditions();
     }
 
     if ((_selectedSkill == _skillsList[0]) && (_selectedLang == _langsList[0])
@@ -930,43 +953,16 @@ class _ShowProjectsState extends State<ShowProjects> {
       _getAllProjects();
     }
 
-    // if ((isSwitched) && (_selectedSkill == _skillsList[0]) && (_selectedLang == _langsList[0])
-    //     && (_categoryList.indexOf(_selectedCategory) == 0) && (_selectedStaff == _staffList[0])){
-    //   _getAllAvailableProjects();
-    // }
-
     setState(() {});
   }
 
   Future<void> callMyProject() async{
     String projectAssigned;
-
-    if (! await checkStudentExist(globals.userId)){
-      Alert(
-        context: context,
-        title: "Error!",
-        desc: "This option just for students",
-        image: Image.asset("images/fail.png"),
-      ).show();
+    projectAssigned = await returnStudentProject(globals.userId);
+    if (projectAssigned != null){
+      await _awaitCallingProjectDtls(projectAssigned, 0);
       _selectedIndex = 0;
-    }else {
-      projectAssigned = await returnStudentProject(globals.userId);
-      if (projectAssigned == null){
-        Alert(
-          context: context,
-          title: "Error!",
-          desc: "No project assigned to you yet!",
-          image: Image.asset("images/fail.png"),
-        ).show();
-        _selectedIndex = 0;
-      }else {
-        await _awaitCallingProjectDtls(projectAssigned, 0);
-        _selectedIndex = 0;
-      }
     }
   }
 
-  _showHideButtons () async{
-    return showButtons = await checkStudentExist(globals.userId);
-  }
 }

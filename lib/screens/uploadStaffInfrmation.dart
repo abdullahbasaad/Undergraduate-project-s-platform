@@ -193,7 +193,7 @@ class _UploadStaffInfoState extends State<UploadStaffInformation> {
         user.userName = _data[i][1];
         user.email = _data[i][2];
         user.email = user.email.toLowerCase();
-        user.password = user.userName.substring(0,2).toLowerCase()+'123456';
+        user.password = user.userId.toString()+'0000000';
 
         AuthNotifier authNotifier = Provider.of<AuthNotifier>(
             context, listen: false);

@@ -8,6 +8,6 @@ class Students extends User{
   String phoneNo;
   String course;
 
-  Students(this.documentId, this.studentId, this.projectId, this.phoneNo, this.course);
+  Students(this.documentId, this.studentId, this.projectId, this.course, this.phoneNo);
 
 }

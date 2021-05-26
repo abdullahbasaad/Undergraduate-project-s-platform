@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:csv/csv.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graduater/api/graduater_api.dart';
@@ -7,6 +8,8 @@ import 'package:graduater/models/projects.dart';
 import 'package:graduater/screens/login.dart';
 import 'package:flutter/services.dart';
 import 'package:graduater/models/globals.dart' as globals;
+import 'package:graduater/screens/showProjects.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'addNewProject.dart';
@@ -101,7 +104,7 @@ class _AdminMenuState extends State<AdminMenu> {
               leading: Icon(Icons.list,
                   color: Colors.blue[900],),
               title: Text('Projects'),
-              onTap: () {
+              onTap: () async{
                 Navigator.pushNamed(context, '/showProjects');
               },
             ),
@@ -148,6 +151,13 @@ class _AdminMenuState extends State<AdminMenu> {
               title: Text('Upload Student Information'),
               onTap:() => Navigator.pushNamed(context, '/uploadStudentsInfo'),
             ),
+            ListTile(
+              leading: Icon(Icons.settings,
+                  color: Colors.green[900]),
+              title: Text('Export Students & Projects Data'),
+              onTap:() => {
+
+                    }),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20.0,vertical: 0.0),
               child: Divider(
@@ -271,7 +281,7 @@ class _AdminMenuState extends State<AdminMenu> {
                             textColor: Colors.white,
                             child: Text('OK'),
                             onPressed: () async {
-                              if (await updateUserPrivilege(_textFieldController.text))
+                              if (await updateUserPrivilege(_textFieldController.text.toLowerCase()))
                                 Alert(
                                   context: context,
                                   title: "Success!",
@@ -463,7 +473,7 @@ class _AdminMenuState extends State<AdminMenu> {
         suc = true;
         assignProjectToStudent(studId, projId);
 
-        if (await getHowManyStudentAssigned(projId) == noOfStud )
+        if (await getHowManyStudentAssigned(projId)+1 == noOfStud ) // curent student
           await updateProjectAvailable(projId, false);
 
         if (projectAssigned != null) await updateProjectAvailable(projectAssigned, true);
@@ -525,4 +535,48 @@ class _AdminMenuState extends State<AdminMenu> {
           ));
     }
   }
+
+  void _generateCsvFile() async {
+    // Map<Permission, PermissionStatus> statuses = await [
+    //   Permission.storage,
+    // ].request();
+    //
+    // List<dynamic> associateList = [
+    //   {"number": 1, "lat": "14.97534313396318", "lon": "101.22998536005622"},
+    //   {"number": 2, "lat": "14.97534313396318", "lon": "101.22998536005622"},
+    //   {"number": 3, "lat": "14.97534313396318", "lon": "101.22998536005622"},
+    //   {"number": 4, "lat": "14.97534313396318", "lon": "101.22998536005622"}
+    // ];
+    //
+    // List<List<dynamic>> rows = [];
+    //
+    // List<dynamic> row = [];
+    // row.add("number");
+    // row.add("latitude");
+    // row.add("longitude");
+    // rows.add(row);
+    // for (int i = 0; i < associateList.length; i++) {
+    //   List<dynamic> row = [];
+    //   row.add(associateList[i]["number"] - 1);
+    //   row.add(associateList[i]["lat"]);
+    //   row.add(associateList[i]["lon"]);
+    //   rows.add(row);
+    // }
+    //
+    // String csv = const ListToCsvConverter().convert(rows);
+    //
+    // String dir = await ExtStorage.getExternalStoragePublicDirectory(
+    //     ExtStorage.DIRECTORY_DOWNLOADS);
+    // print("dir $dir");
+    // String file = "$dir";
+    //
+    // File f = File(file + "/filename.csv");
+    //
+    // f.writeAsString(csv);
+    //
+    // setState(() {
+    //   _counter++;
+    // });
+  }
+
 }

@@ -259,7 +259,6 @@ class _UploadProjectsState extends State<UploadProjects> {
     }
 
     if (!mounted) return;
-
     setState(() {
       isLoadingPath = false;
       fileName = path != null ? path.split('/').last : paths != null

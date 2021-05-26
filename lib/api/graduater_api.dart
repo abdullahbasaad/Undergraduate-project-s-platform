@@ -10,6 +10,7 @@ import 'package:graduater/models/staff.dart';
 import 'package:graduater/models/user.dart';
 import 'package:graduater/notifier/auth_notifier.dart';
 import 'package:graduater/models/globals.dart' as globals;
+import 'package:graduater/screens/showProjects.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 // Login function, check database (Firebase) authentication, ckeck a user profile, check application authentication
@@ -26,6 +27,7 @@ login(User user, AuthNotifier authNotifier,BuildContext context) async {
 
   if (authResult.user != null) {
     globals.email = user.email;
+    bool ds = false;
     FirebaseUser firebaseUser = authResult.user;
 
     if (firebaseUser != null) {
@@ -35,13 +37,25 @@ login(User user, AuthNotifier authNotifier,BuildContext context) async {
       QuerySnapshot querySnapshot = await getDocuemntId(user.email.toLowerCase());
 
       if (querySnapshot.documents.length > 0){
-        if (querySnapshot.documents[0].data['admin'])
-          Navigator.pushNamed(context, '/adminMenu');
-        else
-          Navigator.pushNamed(context, '/showProjects');
-
         globals.userId = querySnapshot.documents[0].data['userId'];
         globals.admin = querySnapshot.documents[0].data['admin'];
+
+        if (await checkStudentExist(globals.userId)) {
+          globals.staff = false;
+          globals.hasProject = await isAStudentHasAProject(globals.userId);
+          globals.projectId = await returnStudentProject(globals.userId);
+        }else
+          globals.staff = true;
+          globals.hasProject = false;
+          globals.projectId = null;
+        if (querySnapshot.documents[0].data['admin']) {
+          globals.staff = true;
+          globals.hasProject = false;
+          globals.projectId = null;
+          Navigator.pushNamed(context, '/adminMenu');
+        }else
+          Navigator.pushNamed(context, '/showProjects');
+
       }else{
         Alert(
           context: context,
@@ -158,6 +172,13 @@ Future<QuerySnapshot> getProjectAvailableDocuments(bool avlbl) {
   return Firestore.instance.collection('project').where('available', isEqualTo: avlbl).getDocuments();
 }
 
+Future<bool> returnProjectAvailability(String prj) async{
+  DocumentSnapshot qShot = await Firestore.instance.collection('project').document(prj).get();
+  if (qShot.exists)
+    return qShot.data['available'];
+
+}
+
 // Return all particular categories collections
 Future<QuerySnapshot> getProjectCategoryDocuments(String categ) {
   return Firestore.instance.collection('project').where('category', isEqualTo: categ).getDocuments();
@@ -191,6 +212,14 @@ Future<String> returnStudentProject(int stdId) async {
     return qShot.documents[0].data['projectId'];
   }
   return null;
+}
+
+Future<bool> isAStudentHasAProject(int stdId) async {
+  QuerySnapshot qShot = await hasStudentProject(stdId);
+  if (qShot.documents[0].data['projectId'] != null) {
+    return true;
+  }else{
+    return false;}
 }
 
 // Check if student id exists in the student's collection
@@ -569,10 +598,10 @@ Future<bool> unsignStudentProject(int stdtId) async{
   if (qs.documents.length > 0) {
     String docId = qs.documents[0].documentID.toString();
     String projId = qs.documents[0].data['projectId'];
+    await updateProjectAvailable(projId, true);
     await Firestore.instance.collection('student')
         .document(docId)
         .updateData({'projectId': null});
-    await updateProjectAvailable(projId, true);
     return true;
   }
   else

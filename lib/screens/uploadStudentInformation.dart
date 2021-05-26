@@ -190,16 +190,17 @@ class _UploadStudentInfoState extends State<UploadStudentInfo> {
         user.userName = _data[i][1];
         user.email = _data[i][2];
         user.email = user.email.toLowerCase();
-        user.password = user.userName.substring(0,2).toLowerCase()+'123456';
+        user.password = user.userId.toString();
 
         AuthNotifier authNotifier = Provider.of<AuthNotifier>(
             context, listen: false);
         await register(user, authNotifier);
-
+        print('11');
         String docId = Uuid().v4();
-
-        Students student = Students(docId, int.parse(_data[i][0].toString()), null, _data[i][4], _data[i][3].toString());
+        print('22');
+        Students student = Students(docId, int.parse(_data[i][0].toString()), null, _data[i][3].toString(), _data[i][4].toString());
         _student.add(student);
+        print('33');
         Firestore.instance.collection("student").document(docId).setData({
           'studentId': student.studentId,
           'projectId': null,
