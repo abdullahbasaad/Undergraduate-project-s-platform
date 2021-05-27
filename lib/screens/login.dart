@@ -35,8 +35,6 @@ class _LoginState extends State<Login> {
     AuthNotifier authNotifier = Provider.of<AuthNotifier>(context, listen: false);
     initializeCurrentUser(authNotifier);
     super.initState();
-    _ctrlUserEmail.text = 'abd_bas@hotmail.com';
-    _ctrlUserPassword.text = 'ab123456';
   }
 
   // This Function to check user authentication

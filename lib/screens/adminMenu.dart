@@ -513,8 +513,9 @@ class _AdminMenuState extends State<AdminMenu> {
     bool vis = await checkStudentExist(globals.userId);
     bool asg = false;
 
-    DocumentSnapshot ds = await Firestore.instance.collection('project').document(projDoc).get();
-    if (ds != null){
+    if (projDoc != null){
+      DocumentSnapshot ds = await Firestore.instance.collection('project').document(projDoc).get();
+
       int howManyStudent = ds.data['noOfStudents'];
 
       if (howManyStudent > await getHowManyStudentAssigned(projDoc))
